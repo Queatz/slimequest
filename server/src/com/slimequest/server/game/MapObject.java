@@ -1,5 +1,6 @@
 package com.slimequest.server.game;
 
+import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 
@@ -19,15 +20,15 @@ public class MapObject extends GameObject {
         if (event.getData().isJsonPrimitive()) {
             source = event.getData().getAsString();
         } else {
-            source = event.getData().getAsJsonObject().get("id").getAsString();
+            source = EventAttr.getId(event);
         }
 
         boolean isMe = source != null && source.equals(id);
 
         if (GameEvent.MOVE.equals(event.getType())) {
             if (isMe) {
-                x = event.getData().getAsJsonObject().get("x").getAsInt();
-                y = event.getData().getAsJsonObject().get("y").getAsInt();
+                x = EventAttr.getX(event);
+                y = EventAttr.getY(event);
 
                 return;
             }

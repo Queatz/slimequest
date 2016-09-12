@@ -1,5 +1,6 @@
 package com.slimequest.game.game;
 
+import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 
@@ -12,6 +13,13 @@ import java.util.HashMap;
 public class World extends GameObject {
     private HashMap<String, Map> maps = new HashMap<String, Map>();
     private Map activeMap;
+
+    @Override
+    public void update() {
+        if (activeMap != null) {
+            activeMap.update();
+        }
+    }
 
     @Override
     public void render() {
@@ -29,15 +37,14 @@ public class World extends GameObject {
         }
 
         else if (GameEvent.JOIN.equals(event.getType())) {
-            String id = event.getData().getAsJsonObject().getAsJsonPrimitive("id").getAsString();
-            int x = event.getData().getAsJsonObject().getAsJsonPrimitive("x").getAsInt();
-            int y = event.getData().getAsJsonObject().getAsJsonPrimitive("y").getAsInt();
+            String id = EventAttr.getId(event);
+            int x = EventAttr.getX(event);
+            int y = EventAttr.getY(event);
 
             // XXX TODO Not only players!!!!!!! :'D
             Player player = new Player();
             player.id = id;
-            player.x= x;
-            player.y = y;
+            player.setPos(x, y);
             add(player);
         }
 
@@ -49,7 +56,6 @@ public class World extends GameObject {
     public void add(GameObject player) {
         if (activeMap == null) {
             activeMap = new Map();
-            maps.put("default", activeMap); // XXX lol todo
         }
 
         if (MapObject.class.isAssignableFrom(player.getClass())) {

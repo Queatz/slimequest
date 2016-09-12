@@ -1,5 +1,6 @@
 package com.slimequest.game;
 
+import com.slimequest.shared.EventAttr;
 import com.slimequest.game.game.Player;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
@@ -25,9 +26,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
 
         if (GameEvent.IDENTIFY.equals(event.getType())) {
             Game.player = new Player();
-            Game.player.id = event.getData().getAsJsonObject().get("id").getAsString();
-            Game.player.x = event.getData().getAsJsonObject().get("x").getAsInt();
-            Game.player.y = event.getData().getAsJsonObject().get("y").getAsInt();
+            Game.player.id = EventAttr.getId(event);
+            Game.player.pos.x = EventAttr.getX(event);
+            Game.player.pos.y = EventAttr.getY(event);
             Game.world.add(Game.player);
         } else {
             Game.world.getEvent(event);

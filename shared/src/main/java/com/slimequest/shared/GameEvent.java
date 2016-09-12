@@ -9,5 +9,5 @@ public class GameEvent {
     public static final String LEAVE = "leave";
     public static final String MOVE = "move";
     public static final String TILE = "tile";
-    public static final String TILES = "tiles";
+    public static final String MAP_TILES = "mapTiles";
 }

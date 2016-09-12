@@ -13,6 +13,10 @@ public class GameObject {
 
     }
 
+    public void update() {
+
+    }
+
     public void render() {
         // XXX Placeholder blue dot?
     }

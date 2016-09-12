@@ -1,6 +1,7 @@
 package com.slimequest.game.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 
@@ -17,21 +18,27 @@ public class Map extends GameObject {
     @Override
     public void getEvent(GameNetworkEvent event) {
         if (GameEvent.MOVE.equals(event.getType())) {
-            String id = event.getData().getAsJsonObject().getAsJsonPrimitive("id").getAsString();
-            int x = event.getData().getAsJsonObject().getAsJsonPrimitive("x").getAsInt();
-            int y = event.getData().getAsJsonObject().getAsJsonPrimitive("y").getAsInt();
+            String id = EventAttr.getId(event);
+            int x = EventAttr.getX(event);
+            int y = EventAttr.getY(event);
 
             if (!mapObjects.containsKey(id)) {
                 return;
             }
 
             MapObject mapObject = mapObjects.get(id);
-            mapObject.x = x;
-            mapObject.y = y;
+            mapObject.moveTo(x, y);
         }
 
-        else if (GameEvent.TILES.equals(event.getType())) {
+        else if (GameEvent.MAP_TILES.equals(event.getType())) {
             // XXX TODO get map tiles
+        }
+    }
+
+    @Override
+    public void update() {
+        for (MapObject mapObject : mapObjects.values()) {
+            mapObject.update();
         }
     }
 
@@ -47,7 +54,7 @@ public class Map extends GameObject {
             mapObject.render();
         }
 
-        // Render upper layer?
+        // Render upper tile layer
 
         // Render rain effects
     }
