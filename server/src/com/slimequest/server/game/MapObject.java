@@ -9,9 +9,14 @@ import com.slimequest.shared.GameNetworkEvent;
  */
 
 public class MapObject extends GameObject {
-    Map map;
+    public Map map;
     public int x;
     public int y;
+
+    @Override
+    public String getType() {
+        throw new RuntimeException("Don't use MapObject directly, subclass it.");
+    }
 
     @Override
     public void getEvent(GameNetworkEvent event) {
@@ -35,10 +40,8 @@ public class MapObject extends GameObject {
 
             // XXX TODO Verify that it's ok to move here
         } else if (GameEvent.JOIN.equals(event.getType())) {
-            if (isMe) {
-                return;
-            }
         } else if (GameEvent.LEAVE.equals(event.getType())) {
+        }  else if (GameEvent.EDIT_TILE.equals(event.getType())) {
             if (isMe) {
                 return;
             }
@@ -48,6 +51,7 @@ public class MapObject extends GameObject {
         }
 
         if (channel != null) {
+            System.out.println("Sending event: " + event.json());
             channel.writeAndFlush(event.json());
         }
     }

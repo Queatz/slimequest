@@ -8,6 +8,9 @@ public class GameEvent {
     public static final String JOIN = "join";
     public static final String LEAVE = "leave";
     public static final String MOVE = "move";
-    public static final String TILE = "tile";
+    public static final String EDIT_TILE = "tile";
     public static final String MAP_TILES = "mapTiles";
+    public static final String EDIT_TELEPORT_TARGET = "editTeleportTarget";
+    public static final String CREATE_OBJECT = "createObject";
+    public static final String REMOVE_OBJECT = "removeObject";
 }

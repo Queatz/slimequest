@@ -1,8 +1,5 @@
 package com.slimequest.game;
 
-import com.slimequest.shared.EventAttr;
-import com.slimequest.game.game.Player;
-import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.Json;
 
@@ -17,22 +14,19 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class ClientHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        GameNetworkEvent event = Json.from(msg, GameNetworkEvent.class);
+        final GameNetworkEvent event = Json.from(msg, GameNetworkEvent.class);
 
         if (event == null) {
             Logger.getAnonymousLogger().warning("Could not parse event: " + msg);
             return;
         }
 
-        if (GameEvent.IDENTIFY.equals(event.getType())) {
-            Game.player = new Player();
-            Game.player.id = EventAttr.getId(event);
-            Game.player.pos.x = EventAttr.getX(event);
-            Game.player.pos.y = EventAttr.getY(event);
-            Game.world.add(Game.player);
-        } else {
-            Game.world.getEvent(event);
-        }
+        Game.game.post(new RunInGame() {
+            @Override
+            public void runInGame() {
+                Game.world.getEvent(event);
+            }
+        });
     }
 
     @Override

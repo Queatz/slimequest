@@ -14,9 +14,8 @@ import java.util.Random;
  */
 
 public class Player extends MapObject {
-
-    Debouncer movementDebouncer;
-    Vector2 lastPos = new Vector2();
+    private Debouncer movementDebouncer;
+    private Vector2 lastPos = new Vector2();
 
     @Override
     public void update() {
@@ -49,7 +48,10 @@ public class Player extends MapObject {
 
         Texture texture = GameResources.img("badlogic.png");
 
-        // XXX TODO handle case of no img
+        // XXX TODO handle case of no img loaded yet, draw random circle......
         Game.batch.draw(texture, pos.x - texture.getWidth() / 2, pos.y - texture.getHeight() / 2);
+
+        // Reset color
+        Game.batch.setColor(1f, 1f , 1f, 1f);
     }
 }

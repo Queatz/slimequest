@@ -1,6 +1,8 @@
 package com.slimequest.server;
 
 
+import com.slimequest.server.game.Map;
+import com.slimequest.server.game.Slime;
 import com.slimequest.server.game.World;
 
 import java.nio.charset.Charset;
@@ -20,7 +22,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 /**
- * Discards any incoming data.
+ * Just initiation stuff...
  */
 public class SlimeQuestServer {
 
@@ -28,10 +30,13 @@ public class SlimeQuestServer {
 
     private SlimeQuestServer(int port) {
         this.port = port;
-        Game.world = new World();
     }
 
     private void run() throws Exception {
+
+        // Start the game loop
+        new ServerGameLoop().start();
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {

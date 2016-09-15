@@ -4,16 +4,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.game.MapObject;
 import com.slimequest.server.game.Player;
+import com.slimequest.server.game.World;
 import com.slimequest.shared.GameNetworkEvent;
+import com.slimequest.shared.GameType;
 import com.slimequest.shared.Json;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.concurrent.DefaultEventExecutor;
 
 /**
  * Created by jacob on 9/10/16.
@@ -22,28 +21,33 @@ import io.netty.util.concurrent.DefaultEventExecutor;
 
 public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
-    // LOL needs to be static because thus class is per client
-    private final static ChannelGroup channels = new DefaultChannelGroup(new DefaultEventExecutor());
-
-    public static JsonObject playerJson(MapObject player) {
+    // XXX need proper way to construct events with related data
+    public static JsonObject objJson(MapObject obj) {
         JsonObject json = new JsonObject();
-        json.add("id", new JsonPrimitive(player.id));
-        json.add("x", new JsonPrimitive(player.x));
-        json.add("y", new JsonPrimitive(player.y));
+        json.add("id", new JsonPrimitive(obj.id));
+        json.add("type", new JsonPrimitive(obj.getType()));
+        json.add("x", new JsonPrimitive(obj.x));
+        json.add("y", new JsonPrimitive(obj.y));
+        json.add("map", new JsonPrimitive(obj.map.id));
         return json;
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String msg) {
         System.out.println("Got event: " + msg);
-        GameNetworkEvent event = Json.from(msg, GameNetworkEvent.class);
+        final GameNetworkEvent event = Json.from(msg, GameNetworkEvent.class);
 
         if (event == null) {
             System.out.println("Got fail event :( --> \"" + msg + "\"");
             return;
         }
 
-        Game.world.getEvent(event);
+        Game.world.post(new RunInWorld() {
+            @Override
+            public void runInWorld(World world) {
+                world.getEvent(event);
+            }
+        });
     }
 
     @Override
@@ -60,6 +64,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
         final Player player = new Player();
         player.id = ctx.channel().id().asShortText();
+        player.map = Game.startMap;
         player.x = 0;
         player.y = 0;
         player.channel = ctx.channel();
@@ -71,16 +76,25 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
             }
         });
 
+        // When the client connects, add their object
+        // XXX todo: object should've been persisted, and set as here / awake
         Game.world.add(player);
-        channels.add(ctx.channel());
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         System.out.println("Lost client: " + ctx.channel().id());
 
-        channels.remove(ctx.channel());
-        Game.world.remove(ctx.channel().id().asShortText());
+        final String id = ctx.channel().id().asShortText();
+
+        // When the client disconnects, remove their object
+        // XXX todo: persist, but set as away / sleeping
+        Game.world.post(new RunInWorld() {
+            @Override
+            public void runInWorld(World world) {
+                world.remove(id);
+            }
+        });
     }
 
     @Override
