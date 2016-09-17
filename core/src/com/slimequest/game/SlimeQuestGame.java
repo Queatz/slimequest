@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor {
 
@@ -58,12 +59,12 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                 didChoosePaint = !didChoosePaint;
             }
         }
-    }, 150);
+    }, 250);
     private String paintObject = null;
     private Teleport isEditingTeleport;
 
     // Pending actions from the server
-    private Queue<RunInGame> runInGames = new LinkedList<>();
+    private ConcurrentLinkedQueue<RunInGame> runInGames = new ConcurrentLinkedQueue<>();
 
     @Override
 	public void create() {
@@ -130,7 +131,6 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         // Update the world
         update();
 
-
         // Center camera on player
         if (Game.player != null) {
             cam.position.x = Game.player.pos.x;
@@ -163,16 +163,38 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.batch.end();
 
         if (Game.isEditing) {
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            Game.shapeRenderer.setProjectionMatrix(cam.combined);
+
+            // Draw a grid
+            int ts = Game.ts;
+            int minX = (int) Math.floor((Game.viewportXY.x - Game.viewportSize / 2) / ts) * ts;
+            int minY = (int) Math.floor((Game.viewportXY.y - Game.viewportSize / 2) / ts) * ts;
+            int maxX = (int) Math.ceil((Game.viewportXY.x + Game.viewportSize / 2) / ts) * ts;
+            int maxY = (int) Math.ceil((Game.viewportXY.y + Game.viewportSize / 2) / ts) * ts;
+
+            Game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            Game.shapeRenderer.setColor(new Color(1f, 1f, 1f, .125f));
+
+            for (int y = minY; y < maxY + 1; y += ts) {
+                Game.shapeRenderer.rect(minX, y, Game.viewportSize + ts, 1);
+            }
+
+            for (int x = minX; x < maxX + 1; x += ts) {
+                Game.shapeRenderer.rect(x, minY, 1, Game.viewportSize + ts);
+            }
+
+            Game.shapeRenderer.end();
+
             Game.batch.setProjectionMatrix(uiCam.combined);
+            Game.shapeRenderer.setProjectionMatrix(uiCam.combined);
 
             if (isEditingTeleport != null) {
 
             }
 
             else if (!didChoosePaint) {
-                Gdx.gl.glEnable(GL20.GL_BLEND);
-                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-                Game.shapeRenderer.setProjectionMatrix(uiCam.combined);
                 Game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 Game.shapeRenderer.setColor(new Color(0f, 0f, 0f, .5f));
                 Game.shapeRenderer.rect(0, 0, Game.viewportSize, Game.viewportSize);
@@ -207,6 +229,15 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                         Integer.toString((int) Math.floor(lastTap.y / Game.ts)), 4, 12);
                 Game.batch.end();
             }
+        }
+
+        // Display connection error
+        if (Game.connectionError) {
+            Game.batch.begin();
+            Game.batch.setProjectionMatrix(uiCam.combined);
+            Game.font.setColor(1, .333f, 0, 1);
+            Game.font.draw(Game.batch, "Connection error", 4, 12);
+            Game.batch.end();
         }
     }
 
@@ -260,7 +291,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     private Vector2 start = new Vector2();
 
     private void drawTile(Vector2 at) {
-        if (Game.isEditing && paintObject == null) {
+        if (Game.isEditing && paintObject == null && Game.world.activeMap != null) {
             Vector3 pos = cam.unproject(new Vector3(at.x, at.y, 0));
             int tX = (int) Math.floor(pos.x / Game.ts);
             int tY = (int) Math.floor(pos.y / Game.ts);
@@ -270,7 +301,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     }
 
     private void drawObject(Vector2 at) {
-        if (Game.isEditing && paintObject != null) {
+        if (Game.isEditing && paintObject != null && Game.world.activeMap != null) {
 
             Vector3 pos = cam.unproject(new Vector3(at.x, at.y, 0));
 
@@ -279,8 +310,10 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                 MapObject mapObject = Game.world.activeMap.findObjectAt(new Vector2(pos.x, pos.y));
 
                 if (mapObject != null) {
-                    Game.world.remove(mapObject.id);
-                    Game.networking.send(new GameNetworkRemoveObjectEvent(mapObject));
+                    if (Teleport.class.isAssignableFrom(mapObject.getClass())) {
+                        Game.world.remove(mapObject.id);
+                        Game.networking.send(new GameNetworkRemoveObjectEvent(mapObject));
+                    }
                 }
 
                 return;
@@ -347,21 +380,6 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                 } else {
                     drawTile(dragging);
                 }
-            } else {
-
-                // Top ts * 2 reserved for objects
-                float ts = Game.ts;
-                if (t.y > Game.viewportSize - Game.ts * 2) {
-                    if (new Rectangle(0, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
-                        chooseObject(GameType.TELEPORT);
-                    } else
-                    if (new Rectangle(Game.viewportSize - ts * 2, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
-                        chooseObject("");
-                    }
-                } else {
-                    int h = GameResources.img("grassy_tiles.png").getHeight();
-                    chooseTile(new Vector2(t.x, h - t.y));
-                }
             }
         }
 
@@ -394,7 +412,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         dragging.x = screenX;
         dragging.y = screenY;
 
-        if (Game.isEditing && paintObject == null) {
+        if (Game.isEditing && paintObject == null && didChoosePaint) {
             drawTile(dragging);
         }
 
@@ -407,13 +425,30 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             return false;
         }
 
-        dragging = null;
+        if (Game.isEditing && !didChoosePaint) {
+            Vector3 t = uiCam.unproject(new Vector3(dragging.x, dragging.y, 0));
 
+            // Top ts * 2 reserved for objects
+            float ts = Game.ts;
+            if (t.y > Game.viewportSize - Game.ts * 2) {
+                if (new Rectangle(0, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
+                    chooseObject(GameType.TELEPORT);
+                } else
+                if (new Rectangle(Game.viewportSize - ts * 2, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
+                    chooseObject("");
+                }
+            } else {
+                int h = GameResources.img("grassy_tiles.png").getHeight();
+                chooseTile(new Vector2(t.x, h - t.y));
+            }
+        }
+
+        dragging = null;
 
         Vector2 tap = new Vector2(screenX, screenY);
         Date now = new Date();
 
-        if (now.getTime() < lastTapUp.getTime() + 150 && (lastTapPos == null || lastTapPos.dst(tap) < Game.ts / zoom)) {
+        if (now.getTime() < lastTapUp.getTime() + 500 && (lastTapPos == null || lastTapPos.dst(tap) < Game.ts / zoom)) {
             tapCount++;
         } else {
             tapCount = 0;

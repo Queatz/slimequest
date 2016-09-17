@@ -62,10 +62,9 @@ public class SlimeQuestServer {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(port).sync();
-
-            f.channel().closeFuture().sync();
+            // Bind and start to accept incoming connections
+            Game.channel = b.bind(port).sync().channel();
+            Game.channel.closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
@@ -73,6 +72,8 @@ public class SlimeQuestServer {
     }
 
     public static void main(String[] args) throws Exception {
+        Game.mainThread = Thread.currentThread();
+
         int port;
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);

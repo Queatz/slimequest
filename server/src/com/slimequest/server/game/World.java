@@ -1,5 +1,6 @@
 package com.slimequest.server.game;
 
+import com.google.gson.JsonObject;
 import com.slimequest.server.Game;
 import com.slimequest.server.RunInWorld;
 import com.slimequest.shared.EventAttr;
@@ -7,10 +8,13 @@ import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
+import com.slimequest.shared.Json;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.slimequest.server.ServerHandler.objJson;
 
@@ -25,10 +29,10 @@ public class World extends GameObject {
     }
 
     // All the objects in the world
-    private HashMap<String, GameObject> objects = new HashMap<String, GameObject>();
+    private HashMap<String, GameObject> objects = new HashMap<>();
 
     // Things from other threads that are pending
-    private final Stack<RunInWorld> pendingPosts = new Stack<RunInWorld>();
+    private final ConcurrentLinkedQueue<RunInWorld> pendingPosts = new ConcurrentLinkedQueue<>();
 
     @Override
     public void getEvent(GameNetworkEvent event) {
@@ -42,7 +46,7 @@ public class World extends GameObject {
 
             return;
         } else if (GameEvent.CREATE_OBJECT.equals(event.getType())) {
-            MapObject obj = new Teleport();
+            MapObject obj = new Teleport(); // XXX TODO Not just teleport!
             obj.id = EventAttr.getId(event);
             obj.map = (Map) get(EventAttr.getMapId(event));
             obj.x = EventAttr.getX(event);
@@ -88,14 +92,25 @@ public class World extends GameObject {
         if (!pendingPosts.isEmpty()) {
             synchronized (pendingPosts) {
                 while (!pendingPosts.isEmpty()) {
-                    pendingPosts.pop().runInWorld(this);
+                    pendingPosts.poll().runInWorld(this);
                 }
             }
         }
     }
 
     public GameObject get(String id) {
-        return objects.get(id);
+        return get(id, true);
+    }
+
+    public GameObject get(String id, boolean create) {
+        GameObject gameObject =  objects.get(id);
+
+        if (create && gameObject == null) {
+            gameObject = (GameObject) Fossilize.defossilize(Json.from(Game.fossils.get(id), JsonObject.class));
+            add(gameObject);
+        }
+
+        return gameObject;
     }
 
     public void add(GameObject object) {
@@ -105,12 +120,12 @@ public class World extends GameObject {
 
         // Add to map
         if (MapObject.class.isAssignableFrom(object.getClass())) {
-            // Identify self with client if necessary
-            object.getEvent(new GameNetworkEvent(GameEvent.IDENTIFY, objJson((MapObject) object)));
-
             Map map = ((MapObject) object).map;
 
             if (map != null) {
+                // Identify self with client if necessary
+                object.getEvent(new GameNetworkEvent(GameEvent.IDENTIFY, objJson((MapObject) object)));
+
                 map.add((MapObject) object);
             }
         } else {
@@ -158,6 +173,37 @@ public class World extends GameObject {
     }
 
     public void post(RunInWorld runInWorld) {
-        pendingPosts.push(runInWorld);
+        pendingPosts.add(runInWorld);
+    }
+
+    public void load(ConcurrentMap<String, String> fossils) {
+        for (String slimeObj : fossils.values()) {
+            GameObject gameObject = (GameObject) Fossilize.defossilize(Json.from(slimeObj, JsonObject.class));
+//            add(gameObject); // See GameObject.java
+
+            if (gameObject == null) {
+                continue;
+            }
+
+            System.out.println("Added " + gameObject.getType() + "...");
+        }
+    }
+
+    public void save(ConcurrentMap<String, String> fossils) {
+        // Make sure the database is cleared
+        fossils.clear();
+
+        for (GameObject gameObject : objects.values()) {
+            JsonObject fossil = Fossilize.fossilize(gameObject);
+
+            if (fossil == null) {
+                System.out.println("Skipping save of " + gameObject.getType() + "...");
+                continue;
+            }
+
+            fossils.put(fossil.get(GameAttr.ID).getAsString(), Json.to(fossil));
+
+            System.out.println("Saved " + gameObject.getType() + "...");
+        }
     }
 }

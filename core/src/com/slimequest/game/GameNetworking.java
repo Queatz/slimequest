@@ -39,10 +39,14 @@ public class GameNetworking extends Thread {
                 @Override
                 public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
                     cause.printStackTrace();
+
+                    Game.connectionError = true;
                 }
 
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
+                    Game.connectionError = false;
+
                     ch.pipeline()
                             .addLast(new SnappyFrameDecoder())
                             .addLast(new SnappyFrameEncoder())
@@ -53,7 +57,7 @@ public class GameNetworking extends Thread {
             });
 
             // Start the client.
-            channel = b.connect("192.168.0.108", 8080).sync().channel();
+            channel = b.connect(Game.serverAddress, 8080).sync().channel();
 
             while (true) {
                 try {
@@ -72,6 +76,7 @@ public class GameNetworking extends Thread {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+            Game.connectionError = true;
         } finally {
             workerGroup.shutdownGracefully();
         }

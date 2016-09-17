@@ -1,5 +1,8 @@
 package com.slimequest.server.game;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.slimequest.server.Game;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
@@ -12,6 +15,28 @@ public class MapObject extends GameObject {
     public Map map;
     public int x;
     public int y;
+
+    @Override
+    public JsonObject fossilize() {
+        JsonObject fossil = super.fossilize();
+
+        fossil.add("map", new JsonPrimitive(map.id));
+        fossil.add("x", new JsonPrimitive(x));
+        fossil.add("y", new JsonPrimitive(y));
+
+        return fossil;
+    }
+
+    @Override
+    public void defossilize(JsonObject fossil) {
+        super.defossilize(fossil);
+
+        map = (Map) Game.world.get(fossil.get("map").getAsString());
+        x = fossil.get("x").getAsInt();
+        y = fossil.get("y").getAsInt();
+
+        map.add(this);
+    }
 
     @Override
     public String getType() {

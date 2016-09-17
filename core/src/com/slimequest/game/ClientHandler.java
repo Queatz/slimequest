@@ -33,5 +33,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<String> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
+        Game.connectionError = true;
     }
 }

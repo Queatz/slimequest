@@ -22,15 +22,31 @@ import static com.slimequest.server.ServerHandler.objJson;
 public class Map extends GameObject {
 
     @Override
+    public JsonObject fossilize() {
+        JsonObject fossil = super.fossilize();
+
+        fossil.add("tiles", getMapTilesJson());
+
+        return fossil;
+    }
+
+    @Override
+    public void defossilize(JsonObject fossil) {
+        super.defossilize(fossil);
+
+        setMapTilesFromJson(fossil.get("tiles").getAsJsonArray());
+    }
+
+    @Override
     public String getType() {
         return GameType.MAP;
     }
 
     // All the objects in this map
-    private final java.util.Map<String, MapObject> mapObjects = new HashMap<String, MapObject>();
+    private final java.util.Map<String, MapObject> mapObjects = new HashMap<>();
 
     // The map tiles
-    private final java.util.Map<Point, MapTile> mapTiles = new HashMap<Point, MapTile>();
+    private final java.util.Map<Point, MapTile> mapTiles = new HashMap<>();
 
     // Get all map tiles as JSON
     // Format: [x, y, t, g]
@@ -46,10 +62,26 @@ public class Map extends GameObject {
             tiles.add(t);
         }
 
+        return tiles;
+    }
+
+    private JsonElement getMapTilesJsonEvt() {
         JsonObject evt = new JsonObject();
         evt.add("id", new JsonPrimitive(id));
-        evt.add("tiles", tiles);
+        evt.add("tiles", getMapTilesJson());
         return evt;
+    }
+
+    // Set map tiles from JSON
+    // Format: [x, y, t, g]
+    private void setMapTilesFromJson(JsonArray tiles) {
+
+        for (JsonElement tile : tiles) {
+            int x = tile.getAsJsonArray().get(0).getAsInt();
+            int y = tile.getAsJsonArray().get(1).getAsInt();
+            int t = tile.getAsJsonArray().get(2).getAsInt();
+            mapTiles.put(new Point(x, y), new MapTile(t));
+        }
     }
 
     @Override
@@ -103,8 +135,7 @@ public class Map extends GameObject {
         }
 
         // Send map tiles
-        mapObject.getEvent(new GameNetworkEvent(GameEvent.MAP_TILES, getMapTilesJson()));
-
+        mapObject.getEvent(new GameNetworkEvent(GameEvent.MAP_TILES, getMapTilesJsonEvt()));
     }
 
     public void remove(String id) {

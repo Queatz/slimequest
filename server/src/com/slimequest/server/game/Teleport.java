@@ -1,5 +1,7 @@
 package com.slimequest.server.game;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
@@ -18,6 +20,21 @@ public class Teleport extends MapObject {
     public String target;
 
     private Set<MapObject> dontTrigger = new HashSet<>();
+
+    @Override
+    public JsonObject fossilize() {
+        JsonObject fossil = super.fossilize();
+
+        fossil.add("target", new JsonPrimitive(target));
+
+        return fossil;
+    }
+
+    @Override
+    public void defossilize(JsonObject fossil) {
+        super.defossilize(fossil);
+        target = fossil.get("target").getAsString();
+    }
 
     @Override
     public String getType() {
@@ -86,7 +103,8 @@ public class Teleport extends MapObject {
     }
 
     private boolean doesTrigger(MapObject object) {
-        return Math.abs(object.x - x) < Game.ts &&
-                Math.abs(object.y - y) < Game.ts;
+        int ts2 = Game.ts / 2;
+        return Math.abs(object.x - (x + ts2)) < ts2 &&
+                Math.abs(object.y - (y + ts2)) < ts2;
     }
 }

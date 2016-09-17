@@ -46,4 +46,8 @@ public class Game {
 
     // Game font
     public static BitmapFont font;
+
+    // Connection error
+    public static boolean connectionError;
+    public static String serverAddress = "192.168.0.102";
 }

@@ -15,4 +15,5 @@ eclipse.project {
 dependencies {
     compile project(":shared")
     compile group: 'io.netty', name: 'netty-all', version: '4.1.5.Final'
+    compile group: 'org.mapdb', name: 'mapdb', version: '3.0.1'
 }
