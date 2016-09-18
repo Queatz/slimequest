@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.shared.EventAttr;
+import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
@@ -43,9 +44,20 @@ public class Teleport extends MapObject {
 
     @Override
     public void getEvent(GameNetworkEvent event) {
+        MapObject obj;
+
         switch (event.getType()) {
             case GameEvent.JOIN:
-                MapObject obj = (MapObject) Game.world.get(EventAttr.getId(event));
+                obj = (MapObject) Game.world.get(EventAttr.getId(event));
+                if (doesTrigger(obj)) {
+                    dontTrigger.add(obj);
+                }
+            case GameEvent.MOVE:
+                if (!event.getData().getAsJsonObject().has(GameAttr.IMPORTANT)) {
+                    break;
+                }
+
+                obj = (MapObject) Game.world.get(EventAttr.getId(event));
                 if (doesTrigger(obj)) {
                     dontTrigger.add(obj);
                 }

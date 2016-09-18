@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.shared.EventAttr;
+import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 
@@ -60,7 +61,9 @@ public class MapObject extends GameObject {
                 x = EventAttr.getX(event);
                 y = EventAttr.getY(event);
 
-                return;
+                if (!event.getData().getAsJsonObject().has(GameAttr.IMPORTANT)) {
+                    return;
+                }
             }
 
             // XXX TODO Verify that it's ok to move here

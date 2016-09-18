@@ -10,4 +10,5 @@ public class GameAttr {
     public static final String DATA = "data";
     public static final String TYPE = "type";
     public static final String MAP = "map";
+    public static final String IMPORTANT = "important";
 }

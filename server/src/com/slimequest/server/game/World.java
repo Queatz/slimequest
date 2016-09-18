@@ -1,6 +1,7 @@
 package com.slimequest.server.game;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.server.RunInWorld;
 import com.slimequest.shared.EventAttr;
@@ -11,8 +12,6 @@ import com.slimequest.shared.GameType;
 import com.slimequest.shared.Json;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -180,7 +179,11 @@ public class World extends GameObject {
             }
 
             if (object.map != null && !movesAcrossMaps) {
-                map.getEvent(new GameNetworkEvent(GameEvent.MOVE, objJson(object)));
+                GameNetworkEvent event = new GameNetworkEvent(GameEvent.MOVE, objJson(object));
+
+                // Ensure it gets sent to its own client
+                event.getData().getAsJsonObject().add(GameAttr.IMPORTANT, new JsonPrimitive(true));
+                map.getEvent(event);
             }
         }
     }

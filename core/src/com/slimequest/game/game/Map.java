@@ -36,7 +36,12 @@ public class Map extends GameObject {
             }
 
             MapObject mapObject = mapObjects.get(id);
-            mapObject.moveTo(new Vector2(x, y));
+
+            if (Game.player != null && Game.player == mapObject) {
+                mapObject.setPos(new Vector2(x, y));
+            } else {
+                mapObject.moveTo(new Vector2(x, y));
+            }
         }
 
         else if (GameEvent.MAP_TILES.equals(event.getType())) {
