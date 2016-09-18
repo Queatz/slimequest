@@ -114,6 +114,9 @@ public class World extends GameObject {
     }
 
     public void add(GameObject object) {
+        if (object == null) {
+            return;
+        }
 
         // Add to world
         objects.put(object.id, object);
