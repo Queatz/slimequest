@@ -2,10 +2,12 @@ package com.slimequest.game.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.google.gson.JsonPrimitive;
 import com.slimequest.game.Debouncer;
 import com.slimequest.game.Game;
 import com.slimequest.game.GameResources;
 import com.slimequest.game.events.GameNetworkMoveEvent;
+import com.slimequest.shared.GameAttr;
 
 import java.util.Random;
 
@@ -53,5 +55,10 @@ public class Player extends MapObject {
 
         // Reset color
         Game.batch.setColor(1f, 1f , 1f, 1f);
+    }
+
+    public void snapTo(Vector2 pos) {
+        this.pos.set(pos);
+        Game.networking.send(new GameNetworkMoveEvent(this));
     }
 }

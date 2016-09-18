@@ -18,6 +18,7 @@ import com.slimequest.game.events.GameNetworkEditTeleportTargetEvent;
 import com.slimequest.game.events.GameNetworkRemoveObjectEvent;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.MapTile;
+import com.slimequest.game.game.Player;
 import com.slimequest.game.game.Teleport;
 import com.slimequest.shared.GameType;
 
