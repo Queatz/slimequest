@@ -156,10 +156,16 @@ public class World extends GameObject {
         objects.remove(id);
     }
 
+    public void move(MapObject object, int newX, int newY) {
+        move(object, object.map, newX, newY);
+    }
+
     public void move(MapObject object, Map map, int x, int y) {
+        boolean movesAcrossMaps = object.map != map;
+
         if (MapObject.class.isAssignableFrom(object.getClass())) {
             // Remove the object from th map
-            if (object.map != null) {
+            if (object.map != null && movesAcrossMaps) {
                 object.map.remove(object.id);
             }
 
@@ -169,8 +175,12 @@ public class World extends GameObject {
             object.y = y;
 
             // Add the object to the new map
-            if (map != null) {
+            if (map != null && movesAcrossMaps) {
                 map.add(object);
+            }
+
+            if (object.map != null && !movesAcrossMaps) {
+                map.getEvent(new GameNetworkEvent(GameEvent.MOVE, objJson(object)));
             }
         }
     }

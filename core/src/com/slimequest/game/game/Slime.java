@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.slimequest.game.Game;
 import com.slimequest.game.GameResources;
 
+import java.util.Random;
+
 /**
  * Created by jacob on 9/11/16.
  */

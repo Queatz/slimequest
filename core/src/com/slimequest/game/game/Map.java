@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.slimequest.game.Game;
@@ -13,10 +12,9 @@ import com.slimequest.game.events.GameNetworkEditTileEvent;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
+import com.slimequest.shared.MapTiles;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by jacob on 9/11/16.
@@ -25,27 +23,6 @@ import java.util.Set;
 public class Map extends GameObject {
     private final java.util.Map<String, MapObject> mapObjects = new HashMap<>();
     private final java.util.Map<Vector2, MapTile> mapTiles = new HashMap<>();
-
-    private final static Set<Integer> collideTiles = new HashSet<>();
-
-    static {
-        // TODO defined by tileset specification...
-        // Needs support for groups
-        collideTiles.add(1000);
-        collideTiles.add(2000);
-        collideTiles.add(3000);
-        collideTiles.add(1);
-        collideTiles.add(1001);
-        collideTiles.add(3001);
-        collideTiles.add(2);
-        collideTiles.add(1002);
-        collideTiles.add(2002);
-        collideTiles.add(3002);
-        collideTiles.add(2003);
-        collideTiles.add(3003);
-        collideTiles.add(2004);
-        collideTiles.add(3004);
-    }
 
     @Override
     public void getEvent(GameNetworkEvent event) {
@@ -177,7 +154,7 @@ public class Map extends GameObject {
     public boolean checkCollision(Vector2 pos) {
         MapTile mapTile = tileBelow(pos);
 
-        return mapTile != null && collideTiles.contains(mapTile.type);
+        return mapTile != null && MapTiles.collideTiles.contains(mapTile.type);
     }
 
     public MapTile tileBelow(Vector2 pos) {

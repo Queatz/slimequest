@@ -4,9 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.slimequest.server.Game;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
+import com.slimequest.shared.MapTiles;
 
 import java.awt.Point;
 import java.util.Collection;
@@ -149,4 +151,21 @@ public class Map extends GameObject {
         // Notify map's objects of the object leaving
         getEvent(new GameNetworkEvent(GameEvent.LEAVE, new JsonPrimitive(id)));
     }
+
+    public boolean checkCollision(Point pos) {
+        MapTile mapTile = tileBelow(pos);
+
+        return mapTile != null && MapTiles.collideTiles.contains(mapTile.type);
+    }
+
+    public MapTile tileBelow(Point pos) {
+        pos = new Point((int) Math.floor(pos.x / Game.ts), (int) Math.floor(pos.y / Game.ts));
+
+        if (mapTiles.containsKey(pos)) {
+            return mapTiles.get(pos);
+        }
+
+        return null;
+    }
+
 }
