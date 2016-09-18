@@ -49,5 +49,5 @@ public class Game {
 
     // Connection error
     public static boolean connectionError;
-    public static String serverAddress = "192.168.0.102";
+    public static String serverAddress = "104.198.99.77";
 }
