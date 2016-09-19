@@ -92,7 +92,7 @@ public class Teleport extends MapObject {
                     // Teleport dat object!
                     Game.world.move(
                             object,
-                            (Map) Game.world.get(targetMap),
+                            Game.world.getOrCreate(Map.class, targetMap),
                             targetX,
                             targetY
                     );

@@ -17,7 +17,7 @@ public class Game {
     public static SlimeQuestGame game;
 
     // The world
-    public static World world = new World();
+    public static World world;
 
     // Networking stuffs...
     public static GameNetworking networking;
@@ -27,10 +27,10 @@ public class Game {
     public static String playerId;
 
     // A batch for drawing the world
-    public static SpriteBatch batch = new SpriteBatch();
+    public static SpriteBatch batch;
 
     // For drawing shapes
-    public static ShapeRenderer shapeRenderer = new ShapeRenderer();
+    public static ShapeRenderer shapeRenderer;
 
     // The game viewport size, as a square
     public static int viewportSize = 160;
@@ -50,6 +50,7 @@ public class Game {
     // Connection error
     public static boolean connectionError;
     public static String serverAddress = "104.198.99.77";
+    public static boolean alive;
 
     // local
     static {

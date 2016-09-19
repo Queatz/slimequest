@@ -97,14 +97,33 @@ public class World extends GameObject {
         }
     }
 
+    public <T extends GameObject> T getOrCreate(Class<T> clazz, String id) {
+        T object = (T) get(id, true);
+
+        if (object == null) {
+            try {
+                object = clazz.newInstance();
+                add(object);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+                return null;
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        return object;
+    }
+
     public GameObject get(String id) {
         return get(id, true);
     }
 
-    public GameObject get(String id, boolean create) {
+    public GameObject get(String id, boolean load) {
         GameObject gameObject =  objects.get(id);
 
-        if (create && gameObject == null) {
+        if (load && gameObject == null) {
             gameObject = (GameObject) Fossilize.defossilize(Json.from(Game.fossils.get(id), JsonObject.class));
             add(gameObject);
         }

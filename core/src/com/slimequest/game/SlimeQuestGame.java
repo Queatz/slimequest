@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -19,6 +20,7 @@ import com.slimequest.game.events.GameNetworkRemoveObjectEvent;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.MapTile;
 import com.slimequest.game.game.Teleport;
+import com.slimequest.game.game.World;
 import com.slimequest.shared.GameType;
 
 import java.util.Date;
@@ -63,11 +65,18 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
     @Override
 	public void create() {
+        Game.world = new World();
+        Game.batch = new SpriteBatch();
+        Game.shapeRenderer = new ShapeRenderer();
+
         // Set up game
         Game.game = this;
         Gdx.input.setInputProcessor(this);
-        Game.networking = new GameNetworking();
-        Game.networking.start();
+
+        if (Game.networking == null) {
+            Game.networking = new GameNetworking();
+            Game.networking.start();
+        }
 
         // Set up world drawing
         cam = new OrthographicCamera();
@@ -84,6 +93,24 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         parameter.borderWidth = 1;
         Game.font = generator.generateFont(parameter);
         generator.dispose();
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+//        if (Game.connectionError) {
+//            if (Game.networking != null) {
+//                Game.networking.close();
+//            }
+//            Game.networking = new GameNetworking();
+//            Game.networking.start();
+//        }
+
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     private void toggleEditing() {
@@ -239,8 +266,14 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 	@Override
 	public void dispose() {
 		Game.batch.dispose();
+        Game.font.dispose();
+
+        Game.batch = null;
+        Game.font = null;
+
 		GameResources.dispose();
-	}
+        Game.networking.close();
+    }
 
     @Override
     public void resize(int width, int height) {

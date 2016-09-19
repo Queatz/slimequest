@@ -26,6 +26,12 @@ import io.netty.handler.codec.string.StringEncoder;
 public class GameNetworking extends Thread {
     private Channel channel;
 
+    public void close() {
+        if (channel != null) {
+            channel.close();
+        }
+    }
+
     @Override
     public void run() {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -59,7 +65,7 @@ public class GameNetworking extends Thread {
             // Start the client.
             channel = b.connect(Game.serverAddress, 8080).sync().channel();
 
-            while (true) {
+            while (channel.isOpen()) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -83,6 +89,10 @@ public class GameNetworking extends Thread {
         } finally {
             Game.connectionError = true;
             workerGroup.shutdownGracefully();
+
+            if (Game.networking == this) {
+                Game.networking = null;
+            }
         }
     }
 

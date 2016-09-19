@@ -43,6 +43,14 @@ public class World extends GameObject {
         }
     }
 
+    public void clear() {
+        Game.player = null;
+        Game.playerId = null;
+        objects.clear();
+        activeMap = null;
+        lastAdded = null;
+    }
+
     @Override
     public void getEvent(GameNetworkEvent event) {
         if (GameEvent.IDENTIFY.equals(event.getType())) {

@@ -51,16 +51,16 @@ public class GameResources {
     }
 
     public static void dispose() {
-        for (Texture texture : images.values()) {
-            texture.dispose();
+        while (!images.isEmpty()) {
+            images.remove(images.keySet().iterator().next()).dispose();
         }
 
-        for (Music mus : musics.values()) {
-            mus.dispose();
+        while (!musics.isEmpty()) {
+            musics.remove(musics.keySet().iterator().next()).dispose();
         }
 
-        for (Sound snd : sounds.values()) {
-            snd.dispose();
+        while (!sounds.isEmpty()) {
+            sounds.remove(sounds.keySet().iterator().next()).dispose();
         }
     }
 }
