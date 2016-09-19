@@ -18,16 +18,10 @@ import com.slimequest.game.events.GameNetworkEditTeleportTargetEvent;
 import com.slimequest.game.events.GameNetworkRemoveObjectEvent;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.MapTile;
-import com.slimequest.game.game.Player;
 import com.slimequest.game.game.Teleport;
 import com.slimequest.shared.GameType;
 
-import java.util.ArrayDeque;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor {

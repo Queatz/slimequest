@@ -182,7 +182,10 @@ public class World extends GameObject {
                 GameNetworkEvent event = new GameNetworkEvent(GameEvent.MOVE, objJson(object));
 
                 // Ensure it gets sent to its own client
-                event.getData().getAsJsonObject().add(GameAttr.IMPORTANT, new JsonPrimitive(true));
+                if (GameType.PLAYER.equals(object.getType())) {
+                    event.getData().getAsJsonObject().add(GameAttr.IMPORTANT, new JsonPrimitive(true));
+                }
+
                 map.getEvent(event);
             }
         }

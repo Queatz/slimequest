@@ -68,16 +68,20 @@ public class GameNetworking extends Thread {
                 }
             }
 
+            Game.connectionError = true;
+
             // Wait until the connection is closed
             channel.closeFuture().sync();
 
             Logger.getAnonymousLogger().warning("SLIMEQUEST - GOT CLOSED");
         } catch (InterruptedException e) {
+            Game.connectionError = true;
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
             Game.connectionError = true;
         } finally {
+            Game.connectionError = true;
             workerGroup.shutdownGracefully();
         }
     }
