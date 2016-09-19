@@ -39,6 +39,7 @@ public class Map extends GameObject {
 
             if (Game.player != null && Game.player == mapObject) {
                 mapObject.setPos(new Vector2(x, y));
+                GameResources.snd("teleport.ogg").play();
             } else {
                 mapObject.moveTo(new Vector2(x, y));
             }

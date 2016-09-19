@@ -1,12 +1,15 @@
 package com.slimequest.game.game;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.Game;
+import com.slimequest.game.GameResources;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -22,6 +25,9 @@ public class World extends GameObject {
 
     // The current map the player is on
     public Map activeMap;
+
+    // Last time an object was added
+    private Date lastAdded;
 
     @Override
     public void update() {
@@ -51,6 +57,11 @@ public class World extends GameObject {
 
             // Set the active map to the map the player is in
             activeMap = Game.player.map;
+
+            // IDENTIFIED!!!! START THE MUSIC!!!!
+            Music music = GameResources.mus("bunny3.ogg");
+            music.setLooping(true);
+            music.play();
 
             // Add player to world
             add(Game.player);
@@ -148,6 +159,10 @@ public class World extends GameObject {
     }
 
     public void add(GameObject object) {
+        if (lastAdded == null || new Date().after(new Date(lastAdded.getTime() + 250))) {
+            GameResources.snd("teleport.ogg").play();
+            lastAdded = new Date();
+        }
 
         // Add to world
         objects.put(object.id, object);
