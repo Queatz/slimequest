@@ -124,8 +124,12 @@ public class World extends GameObject {
         GameObject gameObject =  objects.get(id);
 
         if (load && gameObject == null) {
-            gameObject = (GameObject) Fossilize.defossilize(Json.from(Game.fossils.get(id), JsonObject.class));
-            add(gameObject);
+            String string = Game.fossils.get(id);
+
+            if (string != null) {
+                gameObject = (GameObject) Fossilize.defossilize(Json.from(string, JsonObject.class));
+                add(gameObject);
+            }
         }
 
         return gameObject;

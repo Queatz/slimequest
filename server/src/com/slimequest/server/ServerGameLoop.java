@@ -93,7 +93,11 @@ public class ServerGameLoop extends Thread {
             lastUpdate = newUpdate;
 
             if (Game.world != null) {
-                Game.world.update(delta);
+                try {
+                    Game.world.update(delta);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             // Game loop runs at 1/32th of a second
