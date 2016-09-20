@@ -103,6 +103,7 @@ public class World extends GameObject {
         if (object == null) {
             try {
                 object = clazz.newInstance();
+                object.id = id;
                 add(object);
             } catch (InstantiationException e) {
                 e.printStackTrace();
@@ -124,7 +125,9 @@ public class World extends GameObject {
         GameObject gameObject =  objects.get(id);
 
         if (load && gameObject == null) {
+            Game.openDb();
             String string = Game.fossils.get(id);
+            Game.closeDb();
 
             if (string != null) {
                 gameObject = (GameObject) Fossilize.defossilize(Json.from(string, JsonObject.class));

@@ -3,6 +3,11 @@ package com.slimequest.server;
 import com.slimequest.server.game.Map;
 import com.slimequest.server.game.World;
 
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
+
+import java.io.File;
 import java.util.concurrent.ConcurrentMap;
 
 import io.netty.channel.Channel;
@@ -26,4 +31,36 @@ public class Game {
     public static ConcurrentMap<String, String> fossils;
     public static Thread mainThread;
     public static Channel channel;
+
+
+
+    private static DB db;
+    private static int dbUsers = 0;
+
+    public static void openDb() {
+        dbUsers++;
+
+        if (db != null) {
+            return;
+        }
+
+        db = DBMaker.fileDB(new File("slime.db"))
+                .fileMmapEnableIfSupported()
+                .make();
+
+        Game.fossils = db.hashMap("slimeWorld", Serializer.STRING, Serializer.STRING).createOrOpen();
+    }
+
+    public static void closeDb() {
+        dbUsers--;
+
+        if (db == null || dbUsers > 0) {
+            return;
+        }
+
+        db.close();
+        db = null;
+        Game.fossils = null;
+    }
+
 }

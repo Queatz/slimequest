@@ -18,25 +18,9 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ServerGameLoop extends Thread {
 
-    private DB db;
-
-    private void openDb() {
-        db = DBMaker.fileDB(new File("slime.db"))
-                .fileMmapEnableIfSupported()
-                .make();
-
-        Game.fossils = db.hashMap("slimeWorld", Serializer.STRING, Serializer.STRING).createOrOpen();
-    }
-
-    private void closeDb() {
-        db.close();
-        db = null;
-        Game.fossils = null;
-    }
-
     @Override
     public void run() {
-        openDb();
+        Game.openDb();
 
         Game.world = new World();
 
@@ -64,7 +48,7 @@ public class ServerGameLoop extends Thread {
 
         Game.world.load(Game.fossils);
 
-        closeDb();
+        Game.closeDb();
 
         final boolean[] alive = {true};
 
@@ -111,9 +95,9 @@ public class ServerGameLoop extends Thread {
 
         System.out.println("Saving game...");
 
-        openDb();
+        Game.openDb();
         Game.world.save(Game.fossils);
-        closeDb();
+        Game.closeDb();
 
         Game.channel.close();
 
