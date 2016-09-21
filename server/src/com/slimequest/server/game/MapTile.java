@@ -6,7 +6,6 @@ package com.slimequest.server.game;
 
 public class MapTile {
     int type;
-    int group;
 
     public MapTile(int type) {
         this.type = type;

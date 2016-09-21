@@ -10,38 +10,45 @@ import com.slimequest.shared.GameNetworkEvent;
 public class EventAttr {
     public static String getId(GameNetworkEvent event) {
         try {
-            return event.getData().getAsJsonObject().getAsJsonPrimitive("id").getAsString();
+            return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.ID).getAsString();
         } catch (Exception e) {
             return null;
         }
     }
 
     public static int getX(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonPrimitive("x").getAsInt();
+        return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.X).getAsInt();
     }
 
     public static int getY(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonPrimitive("y").getAsInt();
+        return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.Y).getAsInt();
     }
 
     public static String getMapId(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonPrimitive("map").getAsString();
+        return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.MAP).getAsString();
     }
 
     public static String getType(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonPrimitive("type").getAsString();
+        return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.TYPE).getAsString();
     }
 
     public static JsonArray getTiles(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonArray("tiles");
+        return event.getData().getAsJsonObject().getAsJsonArray(GameAttr.TILES);
     }
 
     public static boolean getFrozen(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().get("frozen").getAsBoolean();
+        return event.getData().getAsJsonObject().get(GameAttr.FROZEN).getAsBoolean();
     }
 
     public static String getTag(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonPrimitive("tag").getAsString();
+        return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.TAG).getAsString();
     }
 
+    public static JsonArray getTile(GameNetworkEvent event) {
+        return event.getData().getAsJsonObject().getAsJsonArray(GameAttr.TILE);
+    }
+
+    public static String getData(GameNetworkEvent event) {
+        return event.getData().getAsJsonObject().get(GameAttr.DATA).getAsString();
+    }
 }

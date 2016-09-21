@@ -48,37 +48,47 @@ public class MapObject extends GameObject {
     public void getEvent(GameNetworkEvent event) {
         final String source;
 
+        // Find event source
         if (event.getData().isJsonPrimitive()) {
             source = event.getData().getAsString();
         } else {
             source = EventAttr.getId(event);
         }
 
+        // Is event somehow from myself?
         boolean isMe = source != null && source.equals(id);
 
         if (GameEvent.MOVE.equals(event.getType())) {
+            // If it is me, update my location
             if (isMe) {
                 x = EventAttr.getX(event);
                 y = EventAttr.getY(event);
 
-                if (!event.getData().getAsJsonObject().has(GameAttr.IMPORTANT)) {
-                    return;
+                // If it's not a teleport movement, don't send to own client
+                if (event.getData().getAsJsonObject().has(GameAttr.TELEPORT)) {
+                    sendToClient(event);
                 }
+            } else {
+                sendToClient(event);
             }
-
-            // XXX TODO Verify that it's ok to move here
         } else if (GameEvent.JOIN.equals(event.getType())) {
+            sendToClient(event);
         } else if (GameEvent.LEAVE.equals(event.getType())) {
+            sendToClient(event);
         } else if (GameEvent.OBJECT_STATE.equals(event.getType())) {
+            sendToClient(event);
         }  else if (GameEvent.EDIT_TILE.equals(event.getType())) {
-            if (isMe) {
-                return;
+            // Don't send own tile edits to client
+            if (!isMe) {
+                sendToClient(event);
             }
         } else {
-            // Unknown event
-            return;
+            super.getEvent(event);
         }
+    }
 
+    // Send event to associated client
+    private void sendToClient(GameNetworkEvent event) {
         if (channel != null) {
             System.out.println("Sending event: " + event.json());
             channel.writeAndFlush(event.json());

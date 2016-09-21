@@ -5,6 +5,7 @@ import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameNetworkEvent;
+import com.slimequest.shared.GameType;
 
 import io.netty.channel.Channel;
 
@@ -30,7 +31,7 @@ public abstract class GameObject implements Fossilizeable {
     }
 
     public String getType() {
-        return "object";
+        return GameType.OBJECT;
     }
 
     public void getEvent(GameNetworkEvent event) {

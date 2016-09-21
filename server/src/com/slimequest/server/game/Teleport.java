@@ -18,8 +18,10 @@ import java.util.Set;
 
 public class Teleport extends MapObject {
 
+    // The teleports destination
     public String target;
 
+    // Set of objects not to trigger, i.e. if they just teleported on to this teleporter
     private Set<MapObject> dontTrigger = new HashSet<>();
 
     @Override
@@ -46,21 +48,25 @@ public class Teleport extends MapObject {
     public void getEvent(GameNetworkEvent event) {
         MapObject obj;
 
+        // Check for objects that join or teleport onto this one
         switch (event.getType()) {
-            case GameEvent.JOIN:
-                obj = (MapObject) Game.world.get(EventAttr.getId(event));
-                if (doesTrigger(obj)) {
-                    dontTrigger.add(obj);
+            case GameEvent.EDIT_TELEPORT_TARGET:
+                if (!id.equals(EventAttr.getId(event))) {
+                    return;
                 }
+
+                target = EventAttr.getData(event);
+
+                break;
+            case GameEvent.JOIN:
+                dontTriggerObj(EventAttr.getId(event));
+                break;
             case GameEvent.MOVE:
-                if (!event.getData().getAsJsonObject().has(GameAttr.IMPORTANT)) {
+                if (!event.getData().getAsJsonObject().has(GameAttr.TELEPORT)) {
                     break;
                 }
 
-                obj = (MapObject) Game.world.get(EventAttr.getId(event));
-                if (doesTrigger(obj)) {
-                    dontTrigger.add(obj);
-                }
+                dontTriggerObj(EventAttr.getId(event));
                 break;
         }
     }
@@ -114,6 +120,15 @@ public class Teleport extends MapObject {
         }
     }
 
+    // Mark an object as non-triggerable
+    private void dontTriggerObj(String id) {
+        MapObject obj = (MapObject) Game.world.get(id);
+        if (doesTrigger(obj)) {
+            dontTrigger.add(obj);
+        }
+    }
+
+    // Check if an object should be teleported
     private boolean doesTrigger(MapObject object) {
         int ts2 = Game.ts / 2;
         return Math.abs(object.x - (x + ts2)) <= ts2 &&

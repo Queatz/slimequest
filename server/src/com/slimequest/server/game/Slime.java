@@ -30,6 +30,7 @@ public class Slime extends MapObject {
 
     @Override
     public void update(float dt) {
+        // Slimes randomly move around
         if (map != null && new Random().nextInt((int) (3 * dt + 1)) == 0) {
             int newX = x + new Random().nextInt(Game.ts * 4) - Game.ts * 2;
             int newY = y + new Random().nextInt(Game.ts * 4) - Game.ts * 2;

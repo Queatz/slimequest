@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
+import com.slimequest.shared.EventAttr;
+import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
@@ -50,7 +52,7 @@ public class Map extends GameObject {
     private final java.util.Map<Point, MapTile> mapTiles = new HashMap<>();
 
     // Get all map tiles as JSON
-    // Format: [x, y, t, g]
+    // Format: [x, y, t]
     private JsonElement getMapTilesJson() {
         JsonArray tiles = new JsonArray();
 
@@ -59,7 +61,6 @@ public class Map extends GameObject {
             t.add(tile.getKey().x);
             t.add(tile.getKey().y);
             t.add(tile.getValue().type);
-            t.add(tile.getValue().group);
             tiles.add(t);
         }
 
@@ -68,15 +69,14 @@ public class Map extends GameObject {
 
     private JsonElement getMapTilesJsonEvt() {
         JsonObject evt = new JsonObject();
-        evt.add("id", new JsonPrimitive(id));
-        evt.add("tiles", getMapTilesJson());
+        evt.add(GameAttr.ID, new JsonPrimitive(id));
+        evt.add(GameAttr.TILES, getMapTilesJson());
         return evt;
     }
 
     // Set map tiles from JSON
-    // Format: [x, y, t, g]
+    // Format: [x, y, t]
     private void setMapTilesFromJson(JsonArray tiles) {
-
         for (JsonElement tile : tiles) {
             int x = tile.getAsJsonArray().get(0).getAsInt();
             int y = tile.getAsJsonArray().get(1).getAsInt();
@@ -88,14 +88,15 @@ public class Map extends GameObject {
     @Override
     public void getEvent(GameNetworkEvent event) {
         if (GameEvent.EDIT_TILE.equals(event.getType())) {
-            // XXX Authorize is map admin of this map or map group
+            // XXX todo Authorize is map admin of this map or map group
 
-            JsonArray tupdate = event.getData().getAsJsonObject().getAsJsonArray("tile");
+            JsonArray tupdate = EventAttr.getTile(event);
 
             Point tp = new Point(
                     tupdate.get(0).getAsInt(),
                     tupdate.get(1).getAsInt()
             );
+
             int tt = tupdate.get(2).getAsInt();
 
             if (tt == -1) {
@@ -104,27 +105,29 @@ public class Map extends GameObject {
                 mapTiles.put(tp, new MapTile(tt));
             }
 
-            // Turn edit event into new tile event
             JsonObject evt = new JsonObject();
             JsonArray tiles = new JsonArray();
+
+            // Turn edit event into new tile event and propagate
             tiles.add(tupdate);
-            evt.add("id", new JsonPrimitive(id));
-            evt.add("tiles", tiles);
+            evt.add(GameAttr.ID, new JsonPrimitive(id));
+            evt.add(GameAttr.TILES, tiles);
             event = new GameNetworkEvent(GameEvent.MAP_TILES, evt);
         }
 
-        // Maps just propagate events...
+        // Maps are just ultimate event propagators...
         for (MapObject object : mapObjects.values()) {
             object.getEvent(event);
         }
     }
 
+    // Find all map objects
     public Collection<MapObject> find() {
         return mapObjects.values();
     }
 
+    // Add object to map
     public void add(MapObject mapObject) {
-        // Add object to map
         mapObjects.put(mapObject.id, mapObject);
 
         // Notify map's objects of the object leaving
@@ -135,10 +138,11 @@ public class Map extends GameObject {
             mapObject.getEvent(new GameNetworkEvent(GameEvent.JOIN, objJson(object)));
         }
 
-        // Send map tiles
+        // Send map tiles to new object
         mapObject.getEvent(new GameNetworkEvent(GameEvent.MAP_TILES, getMapTilesJsonEvt()));
     }
 
+    // Remove object from map
     public void remove(String id) {
         if (!mapObjects.containsKey(id)) {
             return;
@@ -151,12 +155,14 @@ public class Map extends GameObject {
         getEvent(new GameNetworkEvent(GameEvent.LEAVE, new JsonPrimitive(id)));
     }
 
+    // Check if a point collides with this map
     public boolean checkCollision(Point pos) {
         MapTile mapTile = tileBelow(pos);
 
-        return mapTile != null && MapTiles.collideTiles.contains(mapTile.type);
+        return mapTile == null || MapTiles.collideTiles.contains(mapTile.type);
     }
 
+    // Find the tile below a point
     public MapTile tileBelow(Point pos) {
         pos = new Point((int) Math.floor(pos.x / Game.ts), (int) Math.floor(pos.y / Game.ts));
 
@@ -167,6 +173,7 @@ public class Map extends GameObject {
         return null;
     }
 
+    // Get all map objects
     public Collection<MapObject> getObjects() {
         return mapObjects.values();
     }

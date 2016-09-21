@@ -158,7 +158,7 @@ public class Map extends GameObject {
     public boolean checkCollision(Vector2 pos) {
         MapTile mapTile = tileBelow(pos);
 
-        return mapTile != null && MapTiles.collideTiles.contains(mapTile.type);
+        return mapTile == null || MapTiles.collideTiles.contains(mapTile.type);
     }
 
     public MapTile tileBelow(Vector2 pos) {

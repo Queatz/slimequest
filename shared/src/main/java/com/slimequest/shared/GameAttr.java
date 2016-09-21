@@ -10,7 +10,10 @@ public class GameAttr {
     public static final String DATA = "data";
     public static final String TYPE = "type";
     public static final String MAP = "map";
-    public static final String IMPORTANT = "important";
+    public static final String TELEPORT = "important";
     public static final String FROZEN = "frozen";
     public static final String TAG = "tag";
+    public static final String IT_PLAYER = "itPlayer";
+    public static final String TILES = "tiles";
+    public static final String TILE = "tile";
 }

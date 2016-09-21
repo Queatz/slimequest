@@ -53,53 +53,19 @@ public class World extends GameObject {
 
         if (GameEvent.TAG_PLAYER.equals(event.getType())) {
             String playerId = EventAttr.getId(event);
-            final String otherId = EventAttr.getTag(event);
-            GameObject other = Game.world.get(otherId);
+            GameObject player = Game.world.get(playerId);
 
-            // XXX TODO Add some checks lol!
-
-            if (other != null && Player.class.isAssignableFrom(other.getClass())) {
-                boolean freeze = playerId.equals(gameState.itPlayer);
-
-                // Tagging the itPlayer means nothing
-                if (gameState.itPlayer == null || otherId.equals(gameState.itPlayer)) {
-                    return;
-                }
-
-                ((Player) other).frozen = freeze;
-                ((Player) other).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) other)));
+            if (player != null) {
+                player.getEvent(event);
             }
 
-            boolean gameOver = true;
+            return;
+        } else if (GameEvent.EDIT_TELEPORT_TARGET.equals(event.getType())) {
+            id = EventAttr.getId(event);
+            object = get(id);
 
-            for (GameObject gameObject : objects.values()) {
-                if (Player.class.isAssignableFrom(gameObject.getClass()) && !((Player) gameObject).frozen && !gameObject.id.equals(gameState.itPlayer)) {
-                    gameOver = false;
-                    break;
-                }
-            }
-
-            if (gameOver) {
-                gameState.itPlayer = null;
-                getEvent(new GameStateEvent(null));
-
-                for (GameObject gameObject : objects.values()) {
-                    if (Player.class.isAssignableFrom(gameObject.getClass()) && ((Player) gameObject).frozen) {
-                        ((Player) gameObject).frozen = false;
-                        ((Player) gameObject).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) gameObject)));
-                        break;
-                    }
-                }
-
-                // After 5 seconds...
-
-                post(new RunInWorld() {
-                    @Override
-                    public void runInWorld(World world) {
-                        gameState.itPlayer = otherId;
-                        getEvent(new GameStateEvent(otherId));
-                    }
-                }, 5000);
+            if (object != null) {
+                object.getEvent(event);
             }
 
             return;
@@ -117,17 +83,6 @@ public class World extends GameObject {
             add(obj);
 
             return;
-        } else if (GameEvent.EDIT_TELEPORT_TARGET.equals(event.getType())) {
-            id = EventAttr.getId(event);
-            object = get(id);
-
-            if (object != null) {
-                Teleport teleport = (Teleport) object;
-                teleport.target = event.getData().getAsJsonObject().get(GameAttr.DATA).getAsString();
-            }
-
-            // Do not forward event
-            return;
         } else {
             // Global game events
             if (GameEvent.GAME_STATE.equals(event.getType())) {
@@ -143,7 +98,7 @@ public class World extends GameObject {
         }
 
         // Forward event to map of object
-        // XXX May want to change to direct object
+        // XXX May want to change to direct object first, then map, and disallow circular reference
         if (GameType.MAP.equals(object.getType())) {
             object.getEvent(event);
         } else if (MapObject.class.isAssignableFrom(object.getClass())) {
@@ -155,11 +110,7 @@ public class World extends GameObject {
 
     @Override
     public void update(float delta) {
-        // XXX Only update maps with user activity
-        for (GameObject object : objects.values()) {
-            object.update(delta);
-        }
-
+        // Run pending posts to the world
         Set<RunInWorld> ran = new HashSet<>();
 
         Date now = new Date();
@@ -182,8 +133,14 @@ public class World extends GameObject {
                 }
             }
         }
+
+        // Update game objects
+        for (GameObject object : objects.values()) {
+            object.update(delta);
+        }
     }
 
+    // Get an object, create it if it doesn't exist
     public <T extends GameObject> T getOrCreate(Class<T> clazz, String id) {
         T object = (T) get(id, true);
 
@@ -204,10 +161,12 @@ public class World extends GameObject {
         return object;
     }
 
+    // Get object by id
     public GameObject get(String id) {
         return get(id, true);
     }
 
+    // Get an object by id, and load from fossils
     public GameObject get(String id, boolean load) {
         GameObject gameObject =  objects.get(id);
 
@@ -225,6 +184,7 @@ public class World extends GameObject {
         return gameObject;
     }
 
+    // Add an object to the world
     public void add(GameObject object) {
         if (object == null) {
             return;
@@ -245,7 +205,7 @@ public class World extends GameObject {
             Map map = ((MapObject) object).map;
 
             if (map != null) {
-                // Identify self with client if necessary
+                // Identify self with client if necessary if it's a map object
                 object.getEvent(new GameNetworkEvent(GameEvent.IDENTIFY, objJson((MapObject) object)));
 
                 map.add((MapObject) object);
@@ -255,6 +215,7 @@ public class World extends GameObject {
         }
     }
 
+    // Remove an object from the world
     public void remove(String id) {
         GameObject object = get(id);
 
@@ -286,6 +247,7 @@ public class World extends GameObject {
         move(object, object.map, newX, newY);
     }
 
+    // Move an object in the world, possibly across maps
     public void move(MapObject object, Map map, int x, int y) {
         boolean movesAcrossMaps = object.map != map;
 
@@ -305,12 +267,13 @@ public class World extends GameObject {
                 map.add(object);
             }
 
+            // If it's a move within the map, send a move event
             if (object.map != null && !movesAcrossMaps) {
                 GameNetworkEvent event = new GameNetworkEvent(GameEvent.MOVE, objJson(object));
 
-                // Ensure it gets sent to its own client
+                // Ensure that it gets sent to its own client
                 if (GameType.PLAYER.equals(object.getType())) {
-                    event.getData().getAsJsonObject().add(GameAttr.IMPORTANT, new JsonPrimitive(true));
+                    event.getData().getAsJsonObject().add(GameAttr.TELEPORT, new JsonPrimitive(true));
                 }
 
                 map.getEvent(event);
@@ -327,14 +290,17 @@ public class World extends GameObject {
         }
     }
 
+    // Run something in the next game loop cycle
+    // This is thread safe and can be called from anywhere
     public void post(RunInWorld runInWorld) {
         pendingPosts.add(runInWorld);
     }
 
+    // Defossilize the world
     public void load(ConcurrentMap<String, String> fossils) {
         for (String slimeObj : fossils.values()) {
             GameObject gameObject = (GameObject) Fossilize.defossilize(Json.from(slimeObj, JsonObject.class));
-//            add(gameObject); // See GameObject.java
+            // add(gameObject); // See GameObject.java
 
             if (gameObject == null) {
                 continue;
@@ -344,6 +310,7 @@ public class World extends GameObject {
         }
     }
 
+    // Fossilize the world
     public void save(ConcurrentMap<String, String> fossils) {
         // Make sure the database is cleared
         fossils.clear();
@@ -362,7 +329,13 @@ public class World extends GameObject {
         }
     }
 
+    // Get the game global state
     public GameState getGameState() {
         return gameState;
+    }
+
+    // Get all the objects in the world
+    public HashMap<String, GameObject> getObjects() {
+        return objects;
     }
 }

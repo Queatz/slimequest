@@ -9,4 +9,5 @@ public class GameType {
     public static final String MAP = "map";
     public static final String WORLD = "world";
     public static final String TELEPORT = "teleport";
+    public static final String OBJECT = "object";
 }

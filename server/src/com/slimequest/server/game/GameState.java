@@ -6,5 +6,4 @@ package com.slimequest.server.game;
 
 public class GameState {
     public String itPlayer;
-    public boolean isPaused;
 }

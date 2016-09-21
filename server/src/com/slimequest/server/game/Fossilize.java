@@ -28,6 +28,7 @@ public class Fossilize implements Serializable {
 //        register(GameType.WORLD, World.class);
     }
 
+    // Create fossil from game object
     public static JsonObject fossilize(Fossilizeable fossilizeable) {
         JsonObject fossil = fossilizeable.fossilize();
 
@@ -39,6 +40,7 @@ public class Fossilize implements Serializable {
         return fossil;
     }
 
+    // Create game object from fossil
     public static Fossilizeable defossilize(JsonObject fossil) {
         JsonObject jsonObject = Json.from(fossil, JsonObject.class);
 

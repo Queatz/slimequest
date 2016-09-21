@@ -9,6 +9,7 @@ import java.util.Set;
 
 public class MapTiles {
 
+    // Map of tile IDs that are colliding
     public final static Set<Integer> collideTiles = new HashSet<>();
 
     static {
