@@ -14,6 +14,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class ClientHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+        Logger.getAnonymousLogger().warning("Got event: " + msg);
         final GameNetworkEvent event = Json.from(msg, GameNetworkEvent.class);
 
         if (event == null) {

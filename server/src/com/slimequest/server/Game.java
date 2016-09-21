@@ -1,7 +1,12 @@
 package com.slimequest.server;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.slimequest.server.game.Map;
+import com.slimequest.server.game.MapObject;
+import com.slimequest.server.game.Player;
 import com.slimequest.server.game.World;
+import com.slimequest.shared.GameAttr;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -32,8 +37,6 @@ public class Game {
     public static Thread mainThread;
     public static Channel channel;
 
-
-
     private static DB db;
     private static int dbUsers = 0;
 
@@ -63,4 +66,19 @@ public class Game {
         Game.fossils = null;
     }
 
+    // XXX need proper way to construct events with related data
+    public static JsonObject objJson(MapObject obj) {
+        JsonObject json = new JsonObject();
+        json.add(GameAttr.ID, new JsonPrimitive(obj.id));
+        json.add(GameAttr.TYPE, new JsonPrimitive(obj.getType()));
+        json.add(GameAttr.X, new JsonPrimitive(obj.x));
+        json.add(GameAttr.Y, new JsonPrimitive(obj.y));
+        json.add(GameAttr.MAP, new JsonPrimitive(obj.map.id));
+
+        if (Player.class.isAssignableFrom(obj.getClass())) {
+            json.add(GameAttr.FROZEN, new JsonPrimitive(((Player) obj).frozen));
+        }
+
+        return json;
+    }
 }

@@ -14,6 +14,7 @@ import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.MapTiles;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -37,6 +38,7 @@ public class Map extends GameObject {
 
             MapObject mapObject = mapObjects.get(id);
 
+            // Play a sound
             if (Game.player != null && Game.player == mapObject) {
                 mapObject.setPos(new Vector2(x, y));
                 GameResources.snd("teleport.ogg").play();
@@ -116,14 +118,9 @@ public class Map extends GameObject {
             }
         }
 
-        // XXX Concurrent modification thrown here when new objects are added / removed
         for (MapObject mapObject : mapObjects.values()) {
             mapObject.render();
         }
-
-        // Render upper tile layer
-
-        // Render rain effects
     }
 
     public void add(MapObject mapObject) {
@@ -152,6 +149,7 @@ public class Map extends GameObject {
         } else {
             mapTiles.put(tk, new MapTile(tT));
         }
+
         Game.networking.send(new GameNetworkEditTileEvent(tX, tY, tT));
 
         return true;
@@ -183,6 +181,7 @@ public class Map extends GameObject {
     public static float snap(float pos, float lastPos) {
         pos = Math.round(pos / Game.ts) * Game.ts;
 
+        // Ensure they are inside the tile
         if (pos < lastPos) {
             pos -= 0.0001f;
         }
@@ -190,6 +189,7 @@ public class Map extends GameObject {
         return pos;
     }
 
+    // Find an object at a location
     public MapObject findObjectAt(Vector2 pos) {
         for (MapObject mapObject : mapObjects.values()) {
             if (new Rectangle(mapObject.pos.x, mapObject.pos.y, Game.ts, Game.ts).contains(pos)) {
@@ -198,5 +198,21 @@ public class Map extends GameObject {
         }
 
         return null;
+    }
+
+    // Get the objects in this map
+    public Collection<MapObject> getMapObjects() {
+        return mapObjects.values();
+    }
+
+    // Get the map associated with an object
+    public static Map getMapOf(GameObject object) {
+        if (object != null && Map.class.isAssignableFrom(object.getClass())) {
+            return (Map) object;
+        } else if (object != null && MapObject.class.isAssignableFrom(object.getClass())) {
+            return ((MapObject) object).map;
+        } else {
+            return null;
+        }
     }
 }

@@ -15,7 +15,6 @@ public class Slime extends MapObject {
     public void render() {
         Texture texture = GameResources.img("slime.png");
 
-        // XXX TODO handle case of no img loaded yet, draw random circle......
         Game.batch.draw(texture, pos.x - texture.getWidth() / 2, pos.y);
     }
 }

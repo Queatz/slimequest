@@ -11,13 +11,13 @@ public class MapObject extends GameObject {
     public Map map;
     public Vector2 pos = new Vector2();
     public Vector2 targetPos = new Vector2();
-    private Vector2 lastPos = new Vector2();
+    protected Vector2 lastPos = new Vector2();
 
     @Override
     public void update() {
         // Alternative resolution
         // May want to use this if distance is > say the screen width
-         this.pos.interpolate(targetPos, .667f, Interpolation.circleIn);
+         this.pos.interpolate(targetPos, .578f, Interpolation.circleIn);
 
         // Find the desired movement speed
 //        float scl = Math.min(2 /* XXX REPLACE WITH OBJECT SPEED */, pos.dst(targetPos));
@@ -32,7 +32,7 @@ public class MapObject extends GameObject {
     private void checkCollide() {
         // Do collision with map tiles
         if (map != null && map.checkCollision(pos)) {
-            // TODO check velocity, if > ts then check each tile
+            // TODO check velocity, if > ts then check each tile that was crossed over
 
             boolean collisionLastX = map.checkCollision(new Vector2(lastPos.x, pos.y));
             boolean collisionLastY = map.checkCollision(new Vector2(pos.x, lastPos.y));
@@ -59,12 +59,12 @@ public class MapObject extends GameObject {
     }
 
     public void setPos(Vector2 pos) {
-        this.pos.set(this.targetPos.set(pos));
+        lastPos.set(pos.set(targetPos.set(pos)));
         checkCollide();
     }
 
     public void addPos(Vector2 pos) {
-        this.pos.set(this.targetPos.add(pos));
+        lastPos.set(pos.set(targetPos.add(pos)));
         checkCollide();
     }
 }

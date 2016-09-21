@@ -18,6 +18,7 @@ public class Teleport extends MapObject {
             return;
         }
 
+        // Client side teleporation of player
         if (dontTrigger) {
             if (!doesTrigger(Game.player)) {
                 dontTrigger = false;

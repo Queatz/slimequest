@@ -11,10 +11,6 @@ public class Debouncer {
     private Date lastTriggeredAt;
     private boolean pending;
 
-    public Debouncer(Runnable runnable) {
-        this(runnable, 500);
-    }
-
     public Debouncer(Runnable runnable, long freqMs) {
         this.runnable = runnable;
         this.freqMs = freqMs;

@@ -9,7 +9,11 @@ import com.slimequest.shared.GameNetworkEvent;
  */
 public class EventAttr {
     public static String getId(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().getAsJsonPrimitive("id").getAsString();
+        try {
+            return event.getData().getAsJsonObject().getAsJsonPrimitive("id").getAsString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static int getX(GameNetworkEvent event) {
@@ -31,4 +35,13 @@ public class EventAttr {
     public static JsonArray getTiles(GameNetworkEvent event) {
         return event.getData().getAsJsonObject().getAsJsonArray("tiles");
     }
+
+    public static boolean getFrozen(GameNetworkEvent event) {
+        return event.getData().getAsJsonObject().get("frozen").getAsBoolean();
+    }
+
+    public static String getTag(GameNetworkEvent event) {
+        return event.getData().getAsJsonObject().getAsJsonPrimitive("tag").getAsString();
+    }
+
 }

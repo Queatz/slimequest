@@ -21,17 +21,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
-    // XXX need proper way to construct events with related data
-    public static JsonObject objJson(MapObject obj) {
-        JsonObject json = new JsonObject();
-        json.add("id", new JsonPrimitive(obj.id));
-        json.add("type", new JsonPrimitive(obj.getType()));
-        json.add("x", new JsonPrimitive(obj.x));
-        json.add("y", new JsonPrimitive(obj.y));
-        json.add("map", new JsonPrimitive(obj.map.id));
-        return json;
-    }
-
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String msg) {
         System.out.println("Got event: " + msg);

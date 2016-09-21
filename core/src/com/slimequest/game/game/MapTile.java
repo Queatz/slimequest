@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class MapTile {
     int type;
+
+    // TODO Group not supported yet
     int group;
 
     public MapTile(int type) {

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.server.RunInWorld;
+import com.slimequest.server.events.GameStateEvent;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
@@ -11,17 +12,24 @@ import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
 import com.slimequest.shared.Json;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.slimequest.server.ServerHandler.objJson;
+import io.netty.util.internal.ConcurrentSet;
+
+import static com.slimequest.server.Game.objJson;
 
 /**
  * Created by jacob on 9/11/16.
  */
 
 public class World extends GameObject {
+    private GameState gameState = new GameState();
+
     @Override
     public String getType() {
         return GameType.WORLD;
@@ -33,6 +41,9 @@ public class World extends GameObject {
     // Things from other threads that are pending
     private final ConcurrentLinkedQueue<RunInWorld> pendingPosts = new ConcurrentLinkedQueue<>();
 
+    // Things from other threads that are pending
+    private final ConcurrentSet<RunInWorld> scheduledPosts = new ConcurrentSet<>();
+
     @Override
     public void getEvent(GameNetworkEvent event) {
 
@@ -40,7 +51,59 @@ public class World extends GameObject {
         String id;
         GameObject object;
 
-        if (GameEvent.REMOVE_OBJECT.equals(event.getType())) {
+        if (GameEvent.TAG_PLAYER.equals(event.getType())) {
+            String playerId = EventAttr.getId(event);
+            final String otherId = EventAttr.getTag(event);
+            GameObject other = Game.world.get(otherId);
+
+            // XXX TODO Add some checks lol!
+
+            if (other != null && Player.class.isAssignableFrom(other.getClass())) {
+                boolean freeze = playerId.equals(gameState.itPlayer);
+
+                // Tagging the itPlayer means nothing
+                if (gameState.itPlayer == null || otherId.equals(gameState.itPlayer)) {
+                    return;
+                }
+
+                ((Player) other).frozen = freeze;
+                ((Player) other).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) other)));
+            }
+
+            boolean gameOver = true;
+
+            for (GameObject gameObject : objects.values()) {
+                if (Player.class.isAssignableFrom(gameObject.getClass()) && !((Player) gameObject).frozen && !gameObject.id.equals(gameState.itPlayer)) {
+                    gameOver = false;
+                    break;
+                }
+            }
+
+            if (gameOver) {
+                gameState.itPlayer = null;
+                getEvent(new GameStateEvent(null));
+
+                for (GameObject gameObject : objects.values()) {
+                    if (Player.class.isAssignableFrom(gameObject.getClass()) && ((Player) gameObject).frozen) {
+                        ((Player) gameObject).frozen = false;
+                        ((Player) gameObject).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) gameObject)));
+                        break;
+                    }
+                }
+
+                // After 5 seconds...
+
+                post(new RunInWorld() {
+                    @Override
+                    public void runInWorld(World world) {
+                        gameState.itPlayer = otherId;
+                        getEvent(new GameStateEvent(otherId));
+                    }
+                }, 5000);
+            }
+
+            return;
+        } if (GameEvent.REMOVE_OBJECT.equals(event.getType())) {
             remove(EventAttr.getId(event));
 
             return;
@@ -66,8 +129,17 @@ public class World extends GameObject {
             // Do not forward event
             return;
         } else {
-            id = EventAttr.getId(event);
-            object = get(id);
+            // Global game events
+            if (GameEvent.GAME_STATE.equals(event.getType())) {
+                for (GameObject gameObject : objects.values()) {
+                    gameObject.getEvent(event);
+                }
+
+                return;
+            } else {
+                id = EventAttr.getId(event);
+                object = get(id);
+            }
         }
 
         // Forward event to map of object
@@ -86,6 +158,21 @@ public class World extends GameObject {
         // XXX Only update maps with user activity
         for (GameObject object : objects.values()) {
             object.update(delta);
+        }
+
+        Set<RunInWorld> ran = new HashSet<>();
+
+        Date now = new Date();
+
+        for (RunInWorld runInWorld : scheduledPosts) {
+            if (runInWorld.scheduled.before(now)) {
+                ran.add(runInWorld);
+                pendingPosts.add(runInWorld);
+            }
+        }
+
+        for (RunInWorld runInWorld : ran) {
+            scheduledPosts.remove(runInWorld);
         }
 
         if (!pendingPosts.isEmpty()) {
@@ -143,6 +230,13 @@ public class World extends GameObject {
             return;
         }
 
+        // First player to join becomes it
+        if (Player.class.isAssignableFrom(object.getClass())) {
+            if (gameState.itPlayer == null) {
+                gameState.itPlayer = object.id;
+            }
+        }
+
         // Add to world
         objects.put(object.id, object);
 
@@ -179,6 +273,13 @@ public class World extends GameObject {
 
         // Remove from world
         objects.remove(id);
+
+        // If the player who is it leaves, notify all clients
+        if (id.equals(gameState.itPlayer)) {
+            gameState.itPlayer = null;
+
+            getEvent(new GameStateEvent(null));
+        }
     }
 
     public void move(MapObject object, int newX, int newY) {
@@ -217,6 +318,15 @@ public class World extends GameObject {
         }
     }
 
+    public void post(RunInWorld runInWorld, int delay) {
+        if (delay > 0) {
+            runInWorld.scheduled = new Date(new Date().getTime() + delay);
+            scheduledPosts.add(runInWorld);
+        } else {
+            post(runInWorld);
+        }
+    }
+
     public void post(RunInWorld runInWorld) {
         pendingPosts.add(runInWorld);
     }
@@ -250,5 +360,9 @@ public class World extends GameObject {
 
             System.out.println("Saved " + gameObject.getType() + "...");
         }
+    }
+
+    public GameState getGameState() {
+        return gameState;
     }
 }

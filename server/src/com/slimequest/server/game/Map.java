@@ -13,9 +13,8 @@ import com.slimequest.shared.MapTiles;
 import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
-import static com.slimequest.server.ServerHandler.objJson;
+import static com.slimequest.server.Game.objJson;
 
 /**
  * Created by jacob on 9/11/16.
@@ -168,4 +167,7 @@ public class Map extends GameObject {
         return null;
     }
 
+    public Collection<MapObject> getObjects() {
+        return mapObjects.values();
+    }
 }

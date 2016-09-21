@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.World;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
  * Created by jacob on 9/11/16.
  */
@@ -18,6 +20,9 @@ public class Game {
 
     // The world
     public static World world;
+
+    // Noti queue
+    public static ConcurrentLinkedQueue<GameNotification> playerNotifications = new ConcurrentLinkedQueue<>();
 
     // Networking stuffs...
     public static GameNetworking networking;
@@ -54,6 +59,6 @@ public class Game {
 
     // local
     static {
-//        serverAddress = "192.168.0.102";
+        serverAddress = "192.168.0.101";
     }
 }

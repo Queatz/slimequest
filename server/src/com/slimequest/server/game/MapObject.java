@@ -69,6 +69,7 @@ public class MapObject extends GameObject {
             // XXX TODO Verify that it's ok to move here
         } else if (GameEvent.JOIN.equals(event.getType())) {
         } else if (GameEvent.LEAVE.equals(event.getType())) {
+        } else if (GameEvent.OBJECT_STATE.equals(event.getType())) {
         }  else if (GameEvent.EDIT_TILE.equals(event.getType())) {
             if (isMe) {
                 return;

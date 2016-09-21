@@ -13,4 +13,7 @@ public class GameEvent {
     public static final String EDIT_TELEPORT_TARGET = "editTeleportTarget";
     public static final String CREATE_OBJECT = "createObject";
     public static final String REMOVE_OBJECT = "removeObject";
+    public static final String GAME_STATE = "gameState";
+    public static final String OBJECT_STATE = "objectState";
+    public static final String TAG_PLAYER = "tagPlayer";
 }

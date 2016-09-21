@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.Game;
 import com.slimequest.game.GameResources;
 import com.slimequest.shared.EventAttr;
+import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
@@ -26,7 +27,10 @@ public class World extends GameObject {
     // The current map the player is on
     public Map activeMap;
 
-    // Last time an object was added
+    // The player who is currently it
+    public String itPlayerId;
+
+    // Last time a sound was played when an object was added
     private Date lastAdded;
 
     @Override
@@ -53,9 +57,19 @@ public class World extends GameObject {
 
     @Override
     public void getEvent(GameNetworkEvent event) {
-        if (GameEvent.IDENTIFY.equals(event.getType())) {
+        if (GameEvent.GAME_STATE.equals(event.getType())) {
 
-            // Identify player
+            // Set the currently it player
+            if (event.getData().getAsJsonObject().has("itPlayer")) {
+                itPlayerId = event.getData().getAsJsonObject().get("itPlayer").getAsString();
+            } else {
+                itPlayerId = null;
+            }
+        }
+
+        else if (GameEvent.IDENTIFY.equals(event.getType())) {
+
+            // Identify the player
             Game.player = (Player) create(GameType.PLAYER);
             Game.player.id = EventAttr.getId(event);
             Game.player.pos.x = EventAttr.getX(event);
@@ -73,22 +87,36 @@ public class World extends GameObject {
 
             // Add player to world
             add(Game.player);
-        } else if (GameEvent.MOVE.equals(event.getType())) {
+        }
+
+        else if (GameEvent.MOVE.equals(event.getType())) {
 
             // Find associated object and map
             final GameObject object = get(EventAttr.getId(event));
-            final Map map;
-            if (object != null && Map.class.isAssignableFrom(object.getClass())) {
-                map = (Map) object;
-            } else if (object != null && MapObject.class.isAssignableFrom(object.getClass())) {
-                map = ((MapObject) object).map;
-            } else {
-                map = null;
-            }
+            Map map = Map.getMapOf(object);
 
             // Forward move event to map
             if (map != null) {
                 map.getEvent(event);
+            }
+        }
+
+        else if (GameEvent.OBJECT_STATE.equals(event.getType())) {
+
+            // Get existing object
+            String id = EventAttr.getId(event);
+            GameObject object = get(id);
+
+            if (object == null) {
+                return;
+            }
+
+            // Update frozen state of object
+            if (Player.class.isAssignableFrom(object.getClass())) {
+                if (event.getData().getAsJsonObject().has(GameAttr.FROZEN)) {
+                    ((Player) object).frozen = event.getData().getAsJsonObject()
+                        .get(GameAttr.FROZEN).getAsBoolean();
+                }
             }
         }
 
@@ -104,11 +132,6 @@ public class World extends GameObject {
             GameObject object = get(id);
 
             boolean needsAdd = object == null;
-
-            if (!needsAdd) {
-                remove(object.id);
-                needsAdd = true;
-            }
 
             if (needsAdd) {
                 // Create object
@@ -126,6 +149,7 @@ public class World extends GameObject {
             if (Game.playerId.equals(object.id)) {
                 activeMap = ((MapObject) object).map;
                 Game.player = (Player) object;
+                Game.playerId = object.id;
             }
 
             if (needsAdd) {
@@ -134,7 +158,6 @@ public class World extends GameObject {
         }
 
         else if (GameEvent.LEAVE.equals(event.getType())) {
-
             // Safe to always just remove the object
             remove(event.getData().getAsString());
         } else if (GameEvent.MAP_TILES.equals(event.getType())) {
