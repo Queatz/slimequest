@@ -11,6 +11,8 @@ import com.slimequest.game.events.GameNetworkMoveEvent;
 import com.slimequest.game.events.GameNetworkTagEvent;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * Created by jacob on 9/11/16.
@@ -18,11 +20,32 @@ import java.util.Date;
 
 public class Player extends MapObject {
 
+    private static long start = new Date().getTime();
+
     // Send pos to server in intervals
     private Debouncer movementDebouncer;
     public boolean frozen;
 
     private Date lastTag = new Date();
+
+    private enum Direction {
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
+
+    private static java.util.Map<Direction, String[]> imageFromDirection = new HashMap<>();
+
+    static {
+        imageFromDirection.put(Direction.LEFT, new String[] { "Bunny-left-final.png", "Bunny-left-jump-final.png" });
+        imageFromDirection.put(Direction.RIGHT, new String[] { "Bunny-right-final.png", "Bunny-right-jump-final.png" });
+        imageFromDirection.put(Direction.UP, new String[] { "Bunny-back-final.png", "Bunny-back-jump-final.png" });
+        imageFromDirection.put(Direction.DOWN, new String[] { "Bunny-front-final.png", "Bunny-front-jump-final.png" });
+    }
+
+    private Direction direction = Direction.DOWN;
+    private int frame = 0;
 
     public Player() {
         super();
@@ -49,7 +72,32 @@ public class Player extends MapObject {
             movementDebouncer.update();
         }
 
+        Vector2 last = new Vector2(lastPos);
+
         super.update();
+
+        if (last.dst(pos) > .125f) {
+            float xDiff = pos.x - last.x;
+            float yDiff = pos.y - last.y;
+
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                if (xDiff > 0) {
+                    direction = Direction.RIGHT;
+                } else {
+                    direction = Direction.LEFT;
+                }
+            } else {
+                if (yDiff > 0) {
+                    direction = Direction.UP;
+                } else {
+                    direction = Direction.DOWN;
+                }
+            }
+
+            frame = (int) (new Date().getTime() / 100) % 2;
+        } else {
+            frame = 0;
+        }
 
         // Tagging bunnies
         if (id.equals(Game.playerId)) {
@@ -82,7 +130,7 @@ public class Player extends MapObject {
         color.a = frozen ? .5f : 1f;
         Game.batch.setColor(color);
 
-        Texture texture = GameResources.img("badlogic.png");
+        Texture texture = GameResources.img(imageFromDirection.get(direction)[frame]);
 
         // XXX TODO handle case of no img loaded yet, draw random circle......
         // When have resource server....
@@ -98,12 +146,9 @@ public class Player extends MapObject {
     }
 
     public static Color getBunnyColor(String id) {
-        java.awt.Color color = java.awt.Color.getHSBColor(Misc.stringToFloat(id), 1f, 1f);
+        float color[] = Misc.HSVtoRGB(Misc.stringToFloat(id), .5f, 1f);
 
-        return new Color((float) color.getRed() / 255f,
-                (float) color.getGreen() / 255f,
-                (float) color.getBlue() / 255f,
-                1);
+        return new Color(color[0], color[1], color[2], 1);
     }
 
 }

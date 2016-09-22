@@ -191,7 +191,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
         // UI
 
-        Texture bunnyImg = GameResources.img("badlogic.png");
+        Texture bunnyImg = GameResources.img("Bunny-right-final.png");
         Game.batch.setProjectionMatrix(uiCam.combined);
 
         // Draw the it player
@@ -250,6 +250,8 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     }
 
     private void renderEditing() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         // Draw a grid
         Game.shapeRenderer.setProjectionMatrix(cam.combined);
