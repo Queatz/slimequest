@@ -59,12 +59,16 @@ public class MapObject extends GameObject {
     }
 
     public void setPos(Vector2 pos) {
-        lastPos.set(pos.set(targetPos.set(pos)));
+        this.pos.set(targetPos.set(pos));
         checkCollide();
     }
 
+    public void initialPos(Vector2 pos) {
+        this.lastPos.set(this.pos.set(targetPos.set(pos)));
+    }
+
     public void addPos(Vector2 pos) {
-        lastPos.set(pos.set(targetPos.add(pos)));
+        this.pos.set(targetPos.add(pos));
         checkCollide();
     }
 }

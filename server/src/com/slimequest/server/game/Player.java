@@ -46,8 +46,10 @@ public class Player extends MapObject {
 
         // Notify client of game state changes
         else if (GameEvent.GAME_STATE.equals(event.getType())) {
-            System.out.println("Sending event: " + event.json());
-            channel.writeAndFlush(event.json());
+            if (channel != null) {
+                System.out.println("Sending event: " + event.json());
+                channel.writeAndFlush(event.json());
+            }
         }
 
         // Notify client of map tile changes
@@ -74,11 +76,14 @@ public class Player extends MapObject {
                 return;
             }
 
-            // Check if the other object is a player and freeze them!
-            if (other != null && Player.class.isAssignableFrom(other.getClass())) {
-                ((Player) other).frozen = playerId.equals(gameState.itPlayer);
-                ((Player) other).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) other)));
+            // Interaction only happens between players
+            if (other == null || !Player.class.isAssignableFrom(other.getClass())) {
+                return;
             }
+
+            // Freeze them! Or unfreeze if not the player
+            ((Player) other).frozen = playerId.equals(gameState.itPlayer);
+            ((Player) other).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) other)));
 
             // Check if the game has ended
 
@@ -94,14 +99,13 @@ public class Player extends MapObject {
             // If all players except the itPlayer are frozen then the game ends
             if (gameOver) {
                 gameState.itPlayer = null;
-                getEvent(new GameStateEvent(null));
+                Game.world.getEvent(new GameStateEvent(null));
 
                 // Next game, everyone unfreeze!
                 for (GameObject gameObject : Game.world.getObjects().values()) {
                     if (Player.class.isAssignableFrom(gameObject.getClass()) && ((Player) gameObject).frozen) {
                         ((Player) gameObject).frozen = false;
                         ((Player) gameObject).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) gameObject)));
-                        break;
                     }
                 }
 
@@ -111,7 +115,7 @@ public class Player extends MapObject {
                     public void runInWorld(World world) {
                         // Last player to be tagged becomes it
                         Game.world.getGameState().itPlayer = otherId;
-                        getEvent(new GameStateEvent(otherId));
+                        Game.world.getEvent(new GameStateEvent(otherId));
                     }
                 }, 5000);
             }

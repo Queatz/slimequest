@@ -133,6 +133,12 @@ public class World extends GameObject {
 
             boolean needsAdd = object == null;
 
+            // XXX todo need this still?
+            if (!needsAdd) {
+                remove(object.id);
+                needsAdd = true;
+            }
+
             if (needsAdd) {
                 // Create object
                 object = create(EventAttr.getType(event));
@@ -142,7 +148,7 @@ public class World extends GameObject {
             // If object belongs to a map, associate it
             if (mapId != null) {
                 ((MapObject) object).map = get(Map.class, mapId);
-                ((MapObject) object).setPos(new Vector2(x, y));
+                ((MapObject) object).initialPos(new Vector2(x, y));
             }
 
             // In case the player moves maps, re-associate

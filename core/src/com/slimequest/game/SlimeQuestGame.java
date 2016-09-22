@@ -124,7 +124,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.world.update();
 
         // Update notifications
-        if (lastGameNotification == null || lastGameNotification.before(new Date(new Date().getTime() - 5000))) {
+        if (lastGameNotification == null || lastGameNotification.before(new Date(new Date().getTime() - 3000))) {
             if (!Game.playerNotifications.isEmpty()) {
                 lastGameNotification = new Date();
                 displayGameNotification = Game.playerNotifications.poll();
@@ -196,8 +196,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
         // Draw the it player
         if (Game.world.itPlayerId != null) {
-            java.awt.Color color = Player.getBunnyColor(Game.world.itPlayerId);
-            Game.batch.setColor(color.getRed(), color.getGreen(), color.getBlue(), 1f);
+            Game.batch.setColor(Player.getBunnyColor(Game.world.itPlayerId));
 
             GlyphLayout layout = new GlyphLayout();
             layout.setText(Game.font, "is it!");
@@ -223,8 +222,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             int x = Game.viewportSize / 2 - w / 2;
             int y = (int) (Game.viewportSize * .75f);
 
-            java.awt.Color color = Player.getBunnyColor(displayGameNotification.objectId);
-            Game.batch.setColor(color.getRed(), color.getGreen(), color.getBlue(), 1f);
+            Game.batch.setColor(Player.getBunnyColor(displayGameNotification.objectId));
             Game.batch.begin();
             Game.batch.draw(bunnyImg, x, y);
 

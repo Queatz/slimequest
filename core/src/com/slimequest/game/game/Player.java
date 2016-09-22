@@ -1,5 +1,6 @@
 package com.slimequest.game.game;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.Debouncer;
@@ -9,7 +10,6 @@ import com.slimequest.game.Misc;
 import com.slimequest.game.events.GameNetworkMoveEvent;
 import com.slimequest.game.events.GameNetworkTagEvent;
 
-import java.awt.Color;
 import java.util.Date;
 
 /**
@@ -26,31 +26,35 @@ public class Player extends MapObject {
 
     public Player() {
         super();
-
-        movementDebouncer = new Debouncer(new Runnable() {
-            @Override
-            public void run() {
-                if (Game.networking != null) {
-                    Game.networking.send(new GameNetworkMoveEvent(Game.player));
-                }
-            }
-        }, 300);
     }
 
     @Override
     public void update() {
-        super.update();
-
         if (Game.player.id.equals(id) && !pos.equals(lastPos)) {
+            if (movementDebouncer == null) {
+                movementDebouncer = new Debouncer(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Game.networking != null) {
+                            Game.networking.send(new GameNetworkMoveEvent(Game.player));
+                        }
+                    }
+                }, 300);
+            }
+
             movementDebouncer.debounce();
         }
 
-        movementDebouncer.update();
+        if (movementDebouncer != null) {
+            movementDebouncer.update();
+        }
+
+        super.update();
 
         // Tagging bunnies
         if (id.equals(Game.playerId)) {
-            // Can only tag once every 5 seconds
-            if (lastTag.before(new Date(new Date().getTime() - 5000))) {
+            // Can only tag once every 2 seconds
+            if (lastTag.before(new Date(new Date().getTime() - 2000))) {
                 if (map != null) {
                     for (MapObject mapObject : map.getMapObjects()) {
                         if (mapObject == this) {
@@ -75,7 +79,8 @@ public class Player extends MapObject {
     @Override
     public void render() {
         Color color = getBunnyColor(id);
-        Game.batch.setColor(color.getRed(), color.getGreen(), color.getBlue(), frozen ? .5f : 1f);
+        color.a = frozen ? .5f : 1f;
+        Game.batch.setColor(color);
 
         Texture texture = GameResources.img("badlogic.png");
 
@@ -93,7 +98,12 @@ public class Player extends MapObject {
     }
 
     public static Color getBunnyColor(String id) {
-        return java.awt.Color.getHSBColor(Misc.stringToFloat(id), 1f, 1f);
+        java.awt.Color color = java.awt.Color.getHSBColor(Misc.stringToFloat(id), 1f, 1f);
+
+        return new Color((float) color.getRed() / 255f,
+                (float) color.getGreen() / 255f,
+                (float) color.getBlue() / 255f,
+                1);
     }
 
 }

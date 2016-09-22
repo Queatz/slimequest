@@ -1,6 +1,8 @@
 package com.slimequest.game;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * Created by jacob on 9/21/16.
@@ -8,6 +10,6 @@ import java.security.SecureRandom;
 
 public class Misc {
     public static float stringToFloat(String id) {
-        return new SecureRandom(id.getBytes()).nextFloat();
+        return new Random(new BigInteger(id.getBytes()).intValue()).nextFloat();
     }
 }
