@@ -6,4 +6,9 @@ package com.slimequest.game;
 public class GameNotification {
     public String objectId;
     public String message;
+
+    public GameNotification(String objectId, String message) {
+        this.objectId = objectId;
+        this.message = message;
+    }
 }

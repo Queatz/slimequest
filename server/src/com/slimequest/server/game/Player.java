@@ -3,6 +3,7 @@ package com.slimequest.server.game;
 import com.google.gson.JsonObject;
 import com.slimequest.server.Game;
 import com.slimequest.server.RunInWorld;
+import com.slimequest.server.events.GameNotificationEvent;
 import com.slimequest.server.events.GameStateEvent;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameEvent;
@@ -58,11 +59,30 @@ public class Player extends MapObject {
                 System.out.println("Sending event: " + event.json());
                 channel.writeAndFlush(event.json());
             }
-        } else if (GameEvent.TAG_PLAYER.equals(event.getType())) {
+        }
+
+        // Send game notifications
+        else if (GameEvent.GAME_NOTIFICATION.equals(event.getType())) {
+            if (id.equals(EventAttr.getId(event)) && !EventAttr.getSelfReceive(event)) {
+                return;
+            }
+
+            if (channel != null) {
+                System.out.println("Sending event: " + event.json());
+                channel.writeAndFlush(event.json());
+            }
+        }
+
+        else if (GameEvent.TAG_PLAYER.equals(event.getType())) {
             String playerId = EventAttr.getId(event);
 
             // Shouldn't happen, but check anyways
             if (!id.equals(playerId)) {
+                return;
+            }
+
+            // Frozen players cannot unfreeze others
+            if (frozen) {
                 return;
             }
 
@@ -71,18 +91,37 @@ public class Player extends MapObject {
             GameState gameState = Game.world.getGameState();
 
             // Tagging the itPlayer means nothing
-            // If there is no itPlayer, then no tagging should occur
-            if (gameState.itPlayer == null || otherId.equals(gameState.itPlayer)) {
+            if (otherId.equals(gameState.itPlayer)) {
                 return;
             }
+
+            // If there is no itPlayer, then no tagging should occur besides the butterflies
+            if (gameState.itPlayer == null) {
+                if (!Slime.class.isAssignableFrom(other.getClass())) {
+                    return;
+                }
+
+                gameState.itPlayer = playerId;
+                Game.world.getEvent(new GameStateEvent(gameState.itPlayer));
+
+                return;
+            }
+
 
             // Interaction only happens between players
             if (other == null || !Player.class.isAssignableFrom(other.getClass())) {
                 return;
             }
 
+            boolean freeze = playerId.equals(gameState.itPlayer);
+
+            // Nothing to do
+            if (((Player) other).frozen == freeze) {
+                return;
+            }
+
             // Freeze them! Or unfreeze if not the player
-            ((Player) other).frozen = playerId.equals(gameState.itPlayer);
+            ((Player) other).frozen = freeze;
             ((Player) other).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) other)));
 
             // Check if the game has ended
@@ -98,8 +137,11 @@ public class Player extends MapObject {
 
             // If all players except the itPlayer are frozen then the game ends
             if (gameOver) {
+                String winner = gameState.itPlayer;
                 gameState.itPlayer = null;
                 Game.world.getEvent(new GameStateEvent(null));
+
+                Game.world.getEvent(new GameNotificationEvent(winner, "wins!", true));
 
                 // Next game, everyone unfreeze!
                 for (GameObject gameObject : Game.world.getObjects().values()) {
@@ -109,15 +151,16 @@ public class Player extends MapObject {
                     }
                 }
 
-                // Next game starts in 5 seconds...
+                // Next game starts in 10 seconds...
                 Game.world.post(new RunInWorld() {
                     @Override
                     public void runInWorld(World world) {
                         // Last player to be tagged becomes it
                         Game.world.getGameState().itPlayer = otherId;
                         Game.world.getEvent(new GameStateEvent(otherId));
+
                     }
-                }, 5000);
+                }, 7000);
             }
         } else {
             super.getEvent(event);

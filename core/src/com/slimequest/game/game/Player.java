@@ -5,14 +5,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.Debouncer;
 import com.slimequest.game.Game;
+import com.slimequest.game.GameNotification;
 import com.slimequest.game.GameResources;
 import com.slimequest.game.Misc;
 import com.slimequest.game.events.GameNetworkMoveEvent;
 import com.slimequest.game.events.GameNetworkTagEvent;
+import com.slimequest.shared.GameAttr;
+import com.slimequest.shared.GameNetworkEvent;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 /**
  * Created by jacob on 9/11/16.
@@ -49,6 +51,20 @@ public class Player extends MapObject {
 
     public Player() {
         super();
+    }
+
+    @Override
+    public void getEvent(GameNetworkEvent event) {
+        // Update frozen state of object
+        if (Player.class.isAssignableFrom(getClass())) {
+            if (event.getData().getAsJsonObject().has(GameAttr.FROZEN)) {
+                frozen = event.getData().getAsJsonObject().get(GameAttr.FROZEN).getAsBoolean();
+
+                if (Game.world.itPlayerId != null) {
+                    Game.gameNotifications.add(new GameNotification(this.id, frozen ? "frozen!" : "unfrozen!"));
+                }
+            }
+        }
     }
 
     @Override
@@ -107,6 +123,13 @@ public class Player extends MapObject {
                     for (MapObject mapObject : map.getMapObjects()) {
                         if (mapObject == this) {
                             continue;
+                        }
+
+                        // Can only tag players or butterflies when there's no player
+                        if (!Player.class.isAssignableFrom(mapObject.getClass())) {
+                            if (Game.world.itPlayerId != null || !Slime.class.isAssignableFrom(mapObject.getClass())) {
+                                continue;
+                            }
                         }
 
                         if (mapObject.pos.dst(pos) <= Game.ts) {

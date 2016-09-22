@@ -22,7 +22,7 @@ public class Game {
     public static World world;
 
     // Noti queue
-    public static ConcurrentLinkedQueue<GameNotification> playerNotifications = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<GameNotification> gameNotifications = new ConcurrentLinkedQueue<>();
 
     // Networking stuffs...
     public static GameNetworking networking;

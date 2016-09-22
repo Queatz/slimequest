@@ -16,4 +16,5 @@ public class GameEvent {
     public static final String GAME_STATE = "gameState";
     public static final String OBJECT_STATE = "objectState";
     public static final String TAG_PLAYER = "tagPlayer";
+    public static final String GAME_NOTIFICATION = "gameNotification";
 }

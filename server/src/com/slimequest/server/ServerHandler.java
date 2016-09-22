@@ -2,6 +2,7 @@ package com.slimequest.server;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.slimequest.server.events.GameNotificationEvent;
 import com.slimequest.server.game.MapObject;
 import com.slimequest.server.game.Player;
 import com.slimequest.server.game.World;
@@ -68,6 +69,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         // When the client connects, add their object
         // XXX todo: object should've been persisted, and set as here / awake
         Game.world.add(player);
+
+        Game.world.getEvent(new GameNotificationEvent(player.id, "joined!"));
     }
 
     @Override
@@ -81,6 +84,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         Game.world.post(new RunInWorld() {
             @Override
             public void runInWorld(World world) {
+                Game.world.getEvent(new GameNotificationEvent(id, "left the game"));
                 world.remove(id);
             }
         });

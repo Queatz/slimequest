@@ -3,6 +3,7 @@ package com.slimequest.game.game;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.Game;
+import com.slimequest.game.GameNotification;
 import com.slimequest.game.GameResources;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameAttr;
@@ -67,6 +68,10 @@ public class World extends GameObject {
             }
         }
 
+        else if(GameEvent.GAME_NOTIFICATION.equals(event.getType())) {
+            Game.gameNotifications.add(new GameNotification(EventAttr.getId(event), EventAttr.getData(event)));
+        }
+
         else if (GameEvent.IDENTIFY.equals(event.getType())) {
 
             // Identify the player
@@ -111,13 +116,7 @@ public class World extends GameObject {
                 return;
             }
 
-            // Update frozen state of object
-            if (Player.class.isAssignableFrom(object.getClass())) {
-                if (event.getData().getAsJsonObject().has(GameAttr.FROZEN)) {
-                    ((Player) object).frozen = event.getData().getAsJsonObject()
-                        .get(GameAttr.FROZEN).getAsBoolean();
-                }
-            }
+            object.getEvent(event);
         }
 
         else if (GameEvent.JOIN.equals(event.getType())) {

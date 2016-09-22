@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.server.RunInWorld;
+import com.slimequest.server.events.GameNotificationEvent;
 import com.slimequest.server.events.GameStateEvent;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameAttr;
@@ -83,18 +84,25 @@ public class World extends GameObject {
             add(obj);
 
             return;
-        } else {
-            // Global game events
-            if (GameEvent.GAME_STATE.equals(event.getType())) {
-                for (GameObject gameObject : objects.values()) {
+        } else if (GameEvent.GAME_NOTIFICATION.equals(event.getType())) {
+            for (GameObject gameObject : objects.values()) {
+                if (MapObject.class.isAssignableFrom(gameObject.getClass())) {
                     gameObject.getEvent(event);
                 }
-
-                return;
-            } else {
-                id = EventAttr.getId(event);
-                object = get(id);
             }
+
+            return;
+        } else if (GameEvent.GAME_STATE.equals(event.getType())) {
+            for (GameObject gameObject : objects.values()) {
+                if (MapObject.class.isAssignableFrom(gameObject.getClass())) {
+                    gameObject.getEvent(event);
+                }
+            }
+
+            return;
+        } else {
+            id = EventAttr.getId(event);
+            object = get(id);
         }
 
         // Forward event to map of object
@@ -238,8 +246,15 @@ public class World extends GameObject {
         // If the player who is it leaves, notify all clients
         if (id.equals(gameState.itPlayer)) {
             gameState.itPlayer = null;
-
             getEvent(new GameStateEvent(null));
+            getEvent(new GameNotificationEvent(":butterfly", "find the\nbutterfly!"));
+
+            for (GameObject gameObject : objects.values()) {
+                if (Player.class.isAssignableFrom(gameObject.getClass()) && ((Player) gameObject).frozen) {
+                    ((Player) gameObject).frozen = false;
+                    ((Player) gameObject).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) gameObject)));
+                }
+            }
         }
     }
 

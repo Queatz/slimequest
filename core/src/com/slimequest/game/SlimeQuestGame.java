@@ -125,11 +125,12 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
         // Update notifications
         if (lastGameNotification == null || lastGameNotification.before(new Date(new Date().getTime() - 3000))) {
-            if (!Game.playerNotifications.isEmpty()) {
+            if (!Game.gameNotifications.isEmpty()) {
                 lastGameNotification = new Date();
-                displayGameNotification = Game.playerNotifications.poll();
+                displayGameNotification = Game.gameNotifications.poll();
             } else {
                 lastGameNotification = null;
+                displayGameNotification = null;
             }
         }
 
@@ -222,9 +223,15 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             int x = Game.viewportSize / 2 - w / 2;
             int y = (int) (Game.viewportSize * .75f);
 
-            Game.batch.setColor(Player.getBunnyColor(displayGameNotification.objectId));
             Game.batch.begin();
-            Game.batch.draw(bunnyImg, x, y);
+
+            if (":butterfly".equals(displayGameNotification.objectId)) {
+                Game.batch.setColor(1f, 1f, 1f, 1f);
+                Game.batch.draw(GameResources.img("butterfly.png"), x, y);
+            } else {
+                Game.batch.setColor(Player.getBunnyColor(displayGameNotification.objectId));
+                Game.batch.draw(bunnyImg, x, y);
+            }
 
             Game.font.setColor(1f, 1f, 1f, 1f);
             Game.font.draw(Game.batch, displayGameNotification.message, x + bunnyImg.getWidth() + 4, y + (int) layout.height + 4);

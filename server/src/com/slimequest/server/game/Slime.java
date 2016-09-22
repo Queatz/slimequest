@@ -2,6 +2,10 @@ package com.slimequest.server.game;
 
 import com.google.gson.JsonObject;
 import com.slimequest.server.Game;
+import com.slimequest.server.events.GameStateEvent;
+import com.slimequest.shared.EventAttr;
+import com.slimequest.shared.GameEvent;
+import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
 
 import java.awt.Point;
@@ -26,7 +30,6 @@ public class Slime extends MapObject {
     public String getType() {
         return GameType.SLIME;
     }
-
 
     @Override
     public void update(float dt) {

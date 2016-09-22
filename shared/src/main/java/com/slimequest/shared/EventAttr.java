@@ -51,4 +51,8 @@ public class EventAttr {
     public static String getData(GameNetworkEvent event) {
         return event.getData().getAsJsonObject().get(GameAttr.DATA).getAsString();
     }
+
+    public static boolean getSelfReceive(GameNetworkEvent event) {
+        return event.getData().getAsJsonObject().get(GameAttr.SELF_RECEIVE).getAsBoolean();
+    }
 }
