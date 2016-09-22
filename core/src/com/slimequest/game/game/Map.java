@@ -40,7 +40,14 @@ public class Map extends GameObject {
 
             // Play a sound
             if (Game.player != null && Game.player == mapObject) {
-                mapObject.setPos(new Vector2(x, y));
+                boolean isTeleport = EventAttr.getTeleport(event);
+
+                if (isTeleport) {
+                    mapObject.initialPos(new Vector2(x, y));
+                } else {
+                    mapObject.setPos(new Vector2(x, y));
+                }
+
                 GameResources.snd("teleport.ogg").play();
             } else {
                 mapObject.moveTo(new Vector2(x, y));
@@ -183,7 +190,7 @@ public class Map extends GameObject {
 
         // Ensure they are inside the tile
         if (pos < lastPos) {
-            pos -= 0.0001f;
+            pos -= 1f / (float) Game.ts / 4f;
         }
 
         return pos;

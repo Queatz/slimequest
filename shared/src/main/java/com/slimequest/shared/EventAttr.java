@@ -8,6 +8,8 @@ import com.slimequest.shared.GameNetworkEvent;
  * Created by jacob on 9/12/16.
  */
 public class EventAttr {
+    private static boolean teleport;
+
     public static String getId(GameNetworkEvent event) {
         try {
             return event.getData().getAsJsonObject().getAsJsonPrimitive(GameAttr.ID).getAsString();
@@ -54,5 +56,10 @@ public class EventAttr {
 
     public static boolean getSelfReceive(GameNetworkEvent event) {
         return event.getData().getAsJsonObject().get(GameAttr.SELF_RECEIVE).getAsBoolean();
+    }
+
+    public static boolean getTeleport(GameNetworkEvent event) {
+        return event.getData().getAsJsonObject().get(GameAttr.TELEPORT).getAsBoolean();
+
     }
 }
