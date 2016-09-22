@@ -73,6 +73,7 @@ public class World extends GameObject {
         }
 
         else if (GameEvent.IDENTIFY.equals(event.getType())) {
+            clear();
 
             // Identify the player
             Game.player = (Player) create(GameType.PLAYER);

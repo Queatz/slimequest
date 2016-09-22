@@ -54,6 +54,7 @@ public class Game {
 
     // Connection error
     public static boolean connectionError;
+    public static boolean connecting;
     public static String serverAddress = "104.198.99.77";
     public static boolean alive;
 

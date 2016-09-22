@@ -74,9 +74,7 @@ public class Player extends MapObject {
                 movementDebouncer = new Debouncer(new Runnable() {
                     @Override
                     public void run() {
-                        if (Game.networking != null) {
-                            Game.networking.send(new GameNetworkMoveEvent(Game.player));
-                        }
+                        Game.networking.send(new GameNetworkMoveEvent(Game.player));
                     }
                 }, 300);
             }
@@ -135,9 +133,7 @@ public class Player extends MapObject {
                         if (mapObject.pos.dst(pos) <= Game.ts) {
                             lastTag = new Date();
 
-                            if (Game.networking != null) {
-                                Game.networking.send(new GameNetworkTagEvent(mapObject.id));
-                            }
+                            Game.networking.send(new GameNetworkTagEvent(mapObject.id));
 
                             break;
                         }

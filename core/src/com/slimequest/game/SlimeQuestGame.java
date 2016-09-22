@@ -73,6 +73,8 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     private Vector2 dragging;
     private Vector2 start = new Vector2();
 
+    private Date lastConnectionError;
+
     @Override
 	public void create() {
         Game.world = new World();
@@ -247,11 +249,30 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         }
 
         // Display connection error
-        if (Game.connectionError) {
+        if (Game.connectionError || Game.connecting) {
+            if (!Game.connecting) {
+                lastConnectionError = new Date();
+            }
+
             Game.batch.begin();
             Game.batch.setProjectionMatrix(uiCam.combined);
-            Game.font.setColor(1, .333f, 0, 1);
-            Game.font.draw(Game.batch, "Connection error", 4, 12);
+
+            if (Game.connecting) {
+                Game.font.setColor(1, 1f, 0, 1);
+            } else {
+                Game.font.setColor(1, .333f, 0, 1);
+            }
+
+            Game.font.draw(Game.batch, Game.connecting ? "Connecting..." : "Connection error", 4, 12);
+            Game.batch.end();
+        }
+
+        // Display connection error
+        else if (lastConnectionError != null && lastConnectionError.after(new Date(new Date().getTime() - 1500))) {
+            Game.batch.begin();
+            Game.batch.setProjectionMatrix(uiCam.combined);
+            Game.font.setColor(.333f, 1, 0, 1);
+            Game.font.draw(Game.batch, "Connection restored", 4, 12);
             Game.batch.end();
         }
     }
@@ -338,10 +359,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.font = null;
 
 		GameResources.dispose();
-
-        if (Game.networking != null) {
-            Game.networking.close();
-        }
+        Game.networking.close();
     }
 
     @Override

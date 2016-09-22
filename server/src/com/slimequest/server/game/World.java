@@ -105,6 +105,10 @@ public class World extends GameObject {
             object = get(id);
         }
 
+        if (object == null) {
+            return;
+        }
+
         // Forward event to map of object
         // XXX May want to change to direct object first, then map, and disallow circular reference
         if (GameType.MAP.equals(object.getType())) {
