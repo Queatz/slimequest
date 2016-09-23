@@ -13,6 +13,10 @@ public class Misc {
         return new Random(new BigInteger(id.getBytes()).intValue()).nextFloat();
     }
 
+    public static int stringToInt(String id, int max) {
+        return new Random(new BigInteger(id.getBytes()).intValue()).nextInt(max);
+    }
+
     // http://www.java2s.com/Code/Java/2D-Graphics-GUI/HSVtoRGB.htm
     public static float[] HSVtoRGB(float h, float s, float v)
     {

@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.Game;
 import com.slimequest.game.GameNotification;
 import com.slimequest.game.GameResources;
+import com.slimequest.game.Misc;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
@@ -33,6 +34,15 @@ public class World extends GameObject {
 
     // Last time a sound was played when an object was added
     private Date lastAdded;
+
+    // The current music that is playing
+    private Music music;
+    private String musicTrack;
+
+    private static String[] musicTracks = {
+            "bunny3.ogg",
+            "bunderground3.ogg"
+    };
 
     @Override
     public void update() {
@@ -86,10 +96,7 @@ public class World extends GameObject {
             // Set the active map to the map the player is in
             activeMap = Game.player.map;
 
-            // IDENTIFIED!!!! START THE MUSIC!!!!
-            Music music = GameResources.mus("bunny3.ogg");
-            music.setLooping(true);
-            music.play();
+            playMapsMusic();
 
             // Add player to world
             add(Game.player);
@@ -156,6 +163,7 @@ public class World extends GameObject {
                 activeMap = ((MapObject) object).map;
                 Game.player = (Player) object;
                 Game.playerId = object.id;
+                playMapsMusic();
             }
 
             if (needsAdd) {
@@ -171,6 +179,31 @@ public class World extends GameObject {
             Map map = get(Map.class, id);
             map.getEvent(event);
         }
+    }
+
+    public void playMapsMusic() {
+        if (Game.player == null || Game.player.map == null) {
+            return;
+        }
+
+        String next = musicTracks[Misc.stringToInt(Game.player.map.id, musicTracks.length)];
+
+        // Same song, just let it play on
+        if (musicTrack != null && musicTrack.equals(next)) {
+            return;
+        }
+
+        if (music != null) {
+            music.stop();
+            music.dispose();
+        }
+
+        musicTrack = next;
+        music = GameResources.mus(next);
+
+        music.setLooping(true);
+        music.play();
+
     }
 
     public GameObject create(String type) {
