@@ -195,7 +195,6 @@ public class World extends GameObject {
 
         if (music != null) {
             music.stop();
-            music.dispose();
         }
 
         musicTrack = next;
