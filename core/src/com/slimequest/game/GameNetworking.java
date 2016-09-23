@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -73,16 +74,6 @@ public class GameNetworking extends Thread {
 
             Game.connecting = false;
 
-            while (channel != null && channel.isOpen()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    break;
-                }
-            }
-
-            // Wait until the connection is closed
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

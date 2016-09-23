@@ -203,7 +203,7 @@ public class World extends GameObject {
         }
 
         // First player to join becomes it
-        if (Player.class.isAssignableFrom(object.getClass())) {
+        if (Player.class.isAssignableFrom(object.getClass()) && object.channel != null) {
             if (gameState.itPlayer == null) {
                 gameState.itPlayer = object.id;
             }
