@@ -42,6 +42,12 @@ public class Player extends MapObject {
                 // Send initial game state also
                 String itPlayer = Game.world.getGameState().itPlayer;
                 getEvent(new GameStateEvent(itPlayer));
+
+
+                // First player to be it is the one that finds the butterfly
+                if (Game.world.getGameState().itPlayer == null) {
+                    getEvent(new GameNotificationEvent(":butterfly", "find the\nbutterfly!"));
+                }
             }
         }
 
