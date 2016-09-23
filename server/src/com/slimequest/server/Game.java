@@ -49,12 +49,15 @@ public class Game {
 
         db = DBMaker.fileDB(new File("slime.db"))
                 .fileMmapEnableIfSupported()
+                .transactionEnable()
                 .make();
 
         Game.fossils = db.hashMap("slimeWorld", Serializer.STRING, Serializer.STRING).createOrOpen();
     }
 
     public static void closeDb() {
+        db.commit();
+
         dbUsers--;
 
         if (db == null || dbUsers > 0) {
