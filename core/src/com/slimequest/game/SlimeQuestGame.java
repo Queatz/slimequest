@@ -85,10 +85,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.game = this;
         Gdx.input.setInputProcessor(this);
 
-        if (Game.networking == null) {
-            Game.networking = new GameNetworking();
-            Game.networking.start();
-        }
+        new GameNetworking().start();
 
         // Set up world drawing
         cam = new OrthographicCamera();

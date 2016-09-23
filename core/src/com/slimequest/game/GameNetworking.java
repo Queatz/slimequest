@@ -35,10 +35,13 @@ public class GameNetworking extends Thread {
 
         shutdown = true;
         channel = null;
+        Game.networking = null;
     }
 
     @Override
     public void run() {
+        Game.networking = this;
+
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         Game.connecting = true;
