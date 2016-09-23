@@ -73,7 +73,7 @@ public class GameNetworking extends Thread {
 
             Game.connecting = false;
 
-            while (channel.isOpen()) {
+            while (channel != null && channel.isOpen()) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {

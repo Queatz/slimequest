@@ -126,7 +126,11 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.world.update();
 
         // Update notifications
-        if (lastGameNotification == null || lastGameNotification.before(new Date(new Date().getTime() - 3000))) {
+
+        // Last notification sticks around longer
+        int delay = Game.gameNotifications.isEmpty() ? 3000 : 1000;
+
+        if (lastGameNotification == null || lastGameNotification.before(new Date(new Date().getTime() - delay))) {
             if (!Game.gameNotifications.isEmpty()) {
                 lastGameNotification = new Date();
                 displayGameNotification = Game.gameNotifications.poll();
