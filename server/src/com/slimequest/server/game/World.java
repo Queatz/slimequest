@@ -294,9 +294,7 @@ public class World extends GameObject {
                 GameNetworkEvent event = new GameNetworkEvent(GameEvent.MOVE, objJson(object));
 
                 // Ensure that it gets sent to its own client
-                if (GameType.PLAYER.equals(object.getType())) {
-                    event.getData().getAsJsonObject().add(GameAttr.TELEPORT, new JsonPrimitive(true));
-                }
+                event.getData().getAsJsonObject().add(GameAttr.TELEPORT, new JsonPrimitive(true));
 
                 map.getEvent(event);
             }
