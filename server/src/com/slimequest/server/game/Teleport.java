@@ -100,7 +100,8 @@ public class Teleport extends MapObject {
                             object,
                             Game.world.getOrCreate(Map.class, targetMap),
                             targetX,
-                            targetY
+                            targetY,
+                            true
                     );
 
                     // XXX Only one object per frame lol otherwise CME!!!

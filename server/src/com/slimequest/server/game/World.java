@@ -266,11 +266,11 @@ public class World extends GameObject {
     }
 
     public void move(MapObject object, int newX, int newY) {
-        move(object, object.map, newX, newY);
+        move(object, object.map, newX, newY, false);
     }
 
     // Move an object in the world, possibly across maps
-    public void move(MapObject object, Map map, int x, int y) {
+    public void move(MapObject object, Map map, int x, int y, boolean teleport) {
         boolean movesAcrossMaps = object.map != map;
 
         if (MapObject.class.isAssignableFrom(object.getClass())) {
@@ -294,7 +294,9 @@ public class World extends GameObject {
                 GameNetworkEvent event = new GameNetworkEvent(GameEvent.MOVE, objJson(object));
 
                 // Ensure that it gets sent to its own client
-                event.getData().getAsJsonObject().add(GameAttr.TELEPORT, new JsonPrimitive(true));
+                if (teleport) {
+                    event.getData().getAsJsonObject().add(GameAttr.TELEPORT, new JsonPrimitive(true));
+                }
 
                 map.getEvent(event);
             }
