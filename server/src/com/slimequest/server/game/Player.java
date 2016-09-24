@@ -40,12 +40,10 @@ public class Player extends MapObject {
                 channel.writeAndFlush(event.json());
 
                 // Send initial game state also
-                String itPlayer = Game.world.getGameState().itPlayer;
-                getEvent(new GameStateEvent(itPlayer));
-
+                getEvent(new GameStateEvent(Game.world.whosIt()));
 
                 // First player to be it is the one that finds the butterfly
-                if (Game.world.getGameState().itPlayer == null) {
+                if (Game.world.whosIt() == null) {
                     getEvent(new GameNotificationEvent(":butterfly", "find the\nbutterfly!"));
                 }
             }
@@ -94,21 +92,20 @@ public class Player extends MapObject {
 
             final String otherId = EventAttr.getTag(event);
             GameObject other = Game.world.get(otherId);
-            GameState gameState = Game.world.getGameState();
+            String itPlayer = Game.world.whosIt();
 
             // Tagging the itPlayer means nothing
-            if (otherId.equals(gameState.itPlayer)) {
+            if (otherId.equals(itPlayer)) {
                 return;
             }
 
             // If there is no itPlayer, then no tagging should occur besides the butterflies
-            if (gameState.itPlayer == null) {
+            if (itPlayer == null) {
                 if (!Slime.class.isAssignableFrom(other.getClass())) {
                     return;
                 }
 
-                gameState.itPlayer = playerId;
-                Game.world.getEvent(new GameStateEvent(gameState.itPlayer));
+                Game.world.setWhosIt(playerId);
 
                 return;
             }
@@ -119,7 +116,7 @@ public class Player extends MapObject {
                 return;
             }
 
-            boolean freeze = playerId.equals(gameState.itPlayer);
+            boolean freeze = playerId.equals(Game.world.whosIt());
 
             // Nothing to do
             if (((Player) other).frozen == freeze) {
@@ -135,7 +132,7 @@ public class Player extends MapObject {
             boolean gameOver = true;
 
             for (GameObject gameObject : Game.world.getObjects().values()) {
-                if (Player.class.isAssignableFrom(gameObject.getClass()) && !((Player) gameObject).frozen && !gameObject.id.equals(gameState.itPlayer)) {
+                if (Player.class.isAssignableFrom(gameObject.getClass()) && !((Player) gameObject).frozen && !gameObject.id.equals(Game.world.whosIt())) {
                     gameOver = false;
                     break;
                 }
@@ -143,10 +140,8 @@ public class Player extends MapObject {
 
             // If all players except the itPlayer are frozen then the game ends
             if (gameOver) {
-                String winner = gameState.itPlayer;
-                gameState.itPlayer = null;
-                Game.world.getEvent(new GameStateEvent(null));
-
+                String winner = Game.world.whosIt();
+                Game.world.setWhosIt(null);
                 Game.world.getEvent(new GameNotificationEvent(winner, "wins!", true));
 
                 // Next game, everyone unfreeze!
@@ -162,7 +157,7 @@ public class Player extends MapObject {
                     @Override
                     public void runInWorld(World world) {
                         // Last player to be tagged becomes it
-                        Game.world.getGameState().itPlayer = otherId;
+                        Game.world.setWhosIt(otherId);
                         Game.world.getEvent(new GameStateEvent(otherId));
 
                     }

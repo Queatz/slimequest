@@ -31,6 +31,8 @@ import static com.slimequest.server.Game.objJson;
 public class World extends GameObject {
     private GameState gameState = new GameState();
 
+    private Date lastItPlayerInteraction = new Date();
+
     @Override
     public String getType() {
         return GameType.WORLD;
@@ -49,8 +51,12 @@ public class World extends GameObject {
     public void getEvent(GameNetworkEvent event) {
 
         // Get associated object id
-        String id;
+        String id = EventAttr.getId(event);
         GameObject object;
+
+        if (id != null && id.equals(gameState.itPlayer)) {
+            lastItPlayerInteraction = new Date();
+        }
 
         if (GameEvent.TAG_PLAYER.equals(event.getType())) {
             String playerId = EventAttr.getId(event);
@@ -62,7 +68,6 @@ public class World extends GameObject {
 
             return;
         } else if (GameEvent.EDIT_TELEPORT_TARGET.equals(event.getType())) {
-            id = EventAttr.getId(event);
             object = get(id);
 
             if (object != null) {
@@ -101,7 +106,6 @@ public class World extends GameObject {
 
             return;
         } else {
-            id = EventAttr.getId(event);
             object = get(id);
         }
 
@@ -144,6 +148,12 @@ public class World extends GameObject {
                     pendingPosts.poll().runInWorld(this);
                 }
             }
+        }
+
+        // Expire after 1 minute of no activity
+        if (gameState.itPlayer != null &&
+                lastItPlayerInteraction.before(new Date(new Date().getTime() - 1000 * 60))) {
+            resetGame();
         }
 
         // Update game objects
@@ -242,15 +252,21 @@ public class World extends GameObject {
 
         // If the player who is it leaves, notify all clients
         if (id.equals(gameState.itPlayer)) {
-            gameState.itPlayer = null;
-            getEvent(new GameStateEvent(null));
-            getEvent(new GameNotificationEvent(":butterfly", "find the\nbutterfly!"));
+           resetGame();
+        }
+    }
 
-            for (GameObject gameObject : objects.values()) {
-                if (Player.class.isAssignableFrom(gameObject.getClass()) && ((Player) gameObject).frozen) {
-                    ((Player) gameObject).frozen = false;
-                    ((Player) gameObject).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) gameObject)));
-                }
+    private void resetGame() {
+        setWhosIt(null);
+
+        // Tell them to get the butterfly
+        getEvent(new GameNotificationEvent(":butterfly", "find the\nbutterfly!"));
+
+        // Unfreeze everybody
+        for (GameObject gameObject : objects.values()) {
+            if (Player.class.isAssignableFrom(gameObject.getClass()) && ((Player) gameObject).frozen) {
+                ((Player) gameObject).frozen = false;
+                ((Player) gameObject).map.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson((Player) gameObject)));
             }
         }
     }
@@ -341,13 +357,19 @@ public class World extends GameObject {
         }
     }
 
-    // Get the game global state
-    public GameState getGameState() {
-        return gameState;
+    // Get who's it
+    public String whosIt() {
+        return gameState.itPlayer;
     }
 
     // Get all the objects in the world
     public HashMap<String, GameObject> getObjects() {
         return objects;
+    }
+
+    public void setWhosIt(String whosIt) {
+        gameState.itPlayer = whosIt;
+        lastItPlayerInteraction = new Date();
+        getEvent(new GameStateEvent(whosIt));
     }
 }
