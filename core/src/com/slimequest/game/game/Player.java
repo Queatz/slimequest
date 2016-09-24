@@ -62,6 +62,8 @@ public class Player extends MapObject {
 
                 if (Game.world.itPlayerId != null) {
                     Game.gameNotifications.add(new GameNotification(this.id, frozen ? "frozen!" : "unfrozen!"));
+
+                    GameResources.snd(frozen ? "gotted.ogg" : "haha.ogg").play();
                 }
             }
         }

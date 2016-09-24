@@ -38,17 +38,18 @@ public class Map extends GameObject {
 
             MapObject mapObject = mapObjects.get(id);
 
-            // Play a sound
-            if (Game.player != null && Game.player == mapObject) {
-                boolean isTeleport = EventAttr.getTeleport(event);
+            boolean isMe = Game.player != null && Game.player == mapObject;
 
-                if (isTeleport) {
-                    mapObject.initialPos(new Vector2(x, y));
-                } else {
-                    mapObject.setPos(new Vector2(x, y));
-                }
+            boolean isTeleport = EventAttr.getTeleport(event);
 
+            // Teleports are instant
+            if (isTeleport) {
+                mapObject.initialPos(new Vector2(x, y));
+
+                // Play a sound
                 GameResources.snd("teleport.ogg").play();
+            } else if (isMe) {
+                mapObject.setPos(new Vector2(x, y));
             } else {
                 mapObject.moveTo(new Vector2(x, y));
             }

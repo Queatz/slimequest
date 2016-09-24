@@ -59,7 +59,8 @@ public class EventAttr {
     }
 
     public static boolean getTeleport(GameNetworkEvent event) {
-        return event.getData().getAsJsonObject().get(GameAttr.TELEPORT).getAsBoolean();
+        return event.getData().getAsJsonObject().has(GameAttr.TELEPORT) &&
+                event.getData().getAsJsonObject().get(GameAttr.TELEPORT).getAsBoolean();
 
     }
 }

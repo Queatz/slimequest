@@ -60,7 +60,7 @@ public class Game {
 
     // local
     static {
-        serverAddress = "192.168.0.103";
+//        serverAddress = "192.168.0.103";
 //        serverAddress = "172.27.0.111";
     }
 }

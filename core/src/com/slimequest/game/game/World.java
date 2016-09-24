@@ -79,7 +79,12 @@ public class World extends GameObject {
         }
 
         else if(GameEvent.GAME_NOTIFICATION.equals(event.getType())) {
-            Game.gameNotifications.add(new GameNotification(EventAttr.getId(event), EventAttr.getData(event)));
+            String evt = EventAttr.getData(event);
+            Game.gameNotifications.add(new GameNotification(EventAttr.getId(event), evt));
+
+            if (evt.contains("win")) {
+                GameResources.snd("hehehe.ogg").play();
+            }
         }
 
         else if (GameEvent.IDENTIFY.equals(event.getType())) {
