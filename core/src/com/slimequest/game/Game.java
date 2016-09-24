@@ -58,9 +58,37 @@ public class Game {
     public static String serverAddress = "104.198.99.77";
     public static boolean alive;
 
+    public static String credits = "[ROYAL]Bunny Freeze Tag\n\n" +
+
+            "[WHITE]~ Credits ~\n\n" +
+
+            "[ROYAL]Artwork\n" +
+            "[WHITE]Mai Pham\n\n" +
+
+            "[ROYAL]Programming\n" +
+            "[WHITE]Jacob Ferrero\n\n" +
+
+            "[ROYAL]Music\n" +
+            "[WHITE]Jacob Ferrero\n\n" +
+
+            "[ROYAL]Sound Effects\n" +
+            "[WHITE]Jacob Ferrero\n\n" +
+
+            "[ROYAL]Level Design\n" +
+            "[WHITE]Mai Pham\n" +
+            "[WHITE]Jacob Ferrero\n\n" +
+
+            "[ROYAL]Font\n" +
+            "[WHITE]basis33 by Manchson\n\n" +
+
+
+            "\n[FOREST]Released 1/11/2016\n\n" +
+
+            ""
+            ;
+
     // local
     static {
-//        serverAddress = "192.168.0.103";
-//        serverAddress = "172.27.0.111";
+        serverAddress = "192.168.0.103";
     }
 }

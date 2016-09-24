@@ -214,6 +214,9 @@ public class World extends GameObject {
             case GameType.PLAYER:
                 object = new Player();
                 break;
+            case GameType.SIGN:
+                object = new Sign();
+                break;
             case GameType.SLIME:
                 object = new Slime();
                 break;

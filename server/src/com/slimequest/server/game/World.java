@@ -80,13 +80,7 @@ public class World extends GameObject {
 
             return;
         } else if (GameEvent.CREATE_OBJECT.equals(event.getType())) {
-            MapObject obj = new Teleport(); // XXX TODO Not just teleport!
-            obj.id = EventAttr.getId(event);
-            obj.map = (Map) get(EventAttr.getMapId(event));
-            obj.x = EventAttr.getX(event);
-            obj.y = EventAttr.getY(event);
-
-            add(obj);
+            add((MapObject) Fossilize.defossilize(event.getData().getAsJsonObject()));
 
             return;
         } else if (GameEvent.GAME_NOTIFICATION.equals(event.getType())) {

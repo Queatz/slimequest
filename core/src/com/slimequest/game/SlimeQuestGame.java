@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 import com.slimequest.game.events.GameNetworkCreateObjectEvent;
 import com.slimequest.game.events.GameNetworkEditTeleportTargetEvent;
 import com.slimequest.game.events.GameNetworkRemoveObjectEvent;
@@ -74,6 +76,10 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     private Vector2 start = new Vector2();
 
     private Date lastConnectionError;
+
+    // Credits roll
+    private boolean showingCredits;
+    private float creditsRollOffsetY;
 
     @Override
 	public void create() {
@@ -192,6 +198,50 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                 (int) (Game.viewportSize / zoom),
                 (int) (Game.viewportSize / zoom)
         );
+
+        if (showingCredits) {
+            Gdx.gl.glClearColor(.12f, .08f, 0.03f, 1f);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            creditsRollOffsetY += 1;
+
+            GlyphLayout glyphLayout = new GlyphLayout();
+            glyphLayout.setText(Game.font, Game.credits, Color.WHITE, Game.viewportSize, Align.center, true);
+
+            Game.batch.setProjectionMatrix(uiCam.combined);
+
+            Game.font.getData().markupEnabled = true;
+            Game.batch.begin();
+            Game.font.draw(Game.batch,
+                    Game.credits,
+                    0,
+                    creditsRollOffsetY,
+                    Game.viewportSize,
+                    Align.center,
+                    true);
+
+            int frame = (int) ((new Date().getTime() / 100) % 2);
+            String dir = new String[] {
+                "front",
+                "right",
+                "back",
+                "left",
+            }[(int) ((new Date().getTime() / 800) % 4)];
+            Texture bunnyImg = GameResources.img(frame == 0 ? "Bunny-" + dir + "-final.png" : "Bunny-" + dir + "-jump-final.png");
+            Game.batch.draw(bunnyImg, Game.viewportSize / 2 - bunnyImg.getWidth() / 2, creditsRollOffsetY - glyphLayout.height - Game.viewportSize / 4);
+
+
+            Game.batch.end();
+            Game.font.getData().markupEnabled = false;
+
+            if (creditsRollOffsetY - glyphLayout.height > Game.viewportSize * 1.5) {
+                showingCredits = false;
+            }
+
+            return;
+        }
+
+        // Clear
         Gdx.gl.glClearColor(.25f, .25f, 0.25f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -336,6 +386,9 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             Texture teleporter = GameResources.img("teleport_edit_mode.png");
             Game.batch.draw(teleporter, 0, Game.viewportSize - teleporter.getHeight());
 
+            Texture sign = GameResources.img("sign.png");
+            Game.batch.draw(sign, teleporter.getWidth(), Game.viewportSize - sign.getHeight());
+
             Texture delObj = GameResources.img("del_obj.png");
             Game.batch.draw(delObj, Game.viewportSize - Game.ts * 2, Game.viewportSize - teleporter.getHeight());
             Game.batch.end();
@@ -472,8 +525,9 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             if (t.y > Game.viewportSize - Game.ts * 2) {
                 if (new Rectangle(0, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
                     chooseObject(GameType.TELEPORT);
-                } else
-                if (new Rectangle(Game.viewportSize - ts * 2, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
+                } else if (new Rectangle(ts, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
+                    chooseObject(GameType.SIGN);
+                } else if (new Rectangle(Game.viewportSize - ts * 2, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
                     chooseObject("");
                 }
             } else {
@@ -610,5 +664,10 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         }
 
         didChoosePaint = true;
+    }
+
+    public void showCredits() {
+        showingCredits = true;
+        creditsRollOffsetY = 0;
     }
 }

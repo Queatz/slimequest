@@ -110,7 +110,7 @@ public class Player extends MapObject {
                 }
             }
 
-            frame = (int) (new Date().getTime() / 100) % 2;
+            frame = (int) ((new Date().getTime() / 100) % 2);
         } else {
             frame = 0;
         }

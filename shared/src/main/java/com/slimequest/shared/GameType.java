@@ -10,4 +10,5 @@ public class GameType {
     public static final String WORLD = "world";
     public static final String TELEPORT = "teleport";
     public static final String OBJECT = "object";
+    public static final String SIGN = "sign";
 }

@@ -14,7 +14,6 @@ public class Slime extends MapObject {
     @Override
     public void render() {
         Texture texture = GameResources.img("butterfly.png");
-
         Game.batch.draw(texture, pos.x - texture.getWidth() / 2, pos.y);
     }
 }

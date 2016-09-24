@@ -25,6 +25,7 @@ public class Fossilize implements Serializable {
         register(GameType.MAP, Map.class);
         register(GameType.TELEPORT, Teleport.class);
         register(GameType.SLIME, Slime.class);
+        register(GameType.SIGN, Sign.class);
 //        register(GameType.WORLD, World.class);
     }
 
@@ -42,24 +43,14 @@ public class Fossilize implements Serializable {
 
     // Create game object from fossil
     public static Fossilizeable defossilize(JsonObject fossil) {
-        JsonObject jsonObject = Json.from(fossil, JsonObject.class);
-
-        String id = jsonObject.get(GameAttr.ID).getAsString();
+        String id = fossil.get(GameAttr.ID).getAsString();
         Fossilizeable fossilizeable = Game.world.get(id, false);
 
-        if (fossilizeable == null) try {
-            Class<? extends Fossilizeable> clazz = fossilizers.get(jsonObject.get("type").getAsString());
+        if (fossilizeable == null) {
+            fossilizeable = newInstance(fossil);
+        }
 
-            if (clazz == null) {
-                return null;
-            }
-
-             fossilizeable = clazz.newInstance();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
+        if (fossilizeable == null) {
             return null;
         }
 
@@ -67,8 +58,26 @@ public class Fossilize implements Serializable {
         ((GameObject) fossilizeable).id = id;
         Game.world.add((GameObject) fossilizeable);
 
-        fossilizeable.defossilize(jsonObject);
+        fossilizeable.defossilize(fossil);
 
         return fossilizeable;
+    }
+
+    public static Fossilizeable newInstance(JsonObject jsonObject) {
+        try {
+            Class<? extends Fossilizeable> clazz = fossilizers.get(jsonObject.get(GameAttr.TYPE).getAsString());
+
+            if (clazz == null) {
+                return null;
+            }
+
+            return clazz.newInstance();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
