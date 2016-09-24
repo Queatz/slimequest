@@ -81,10 +81,6 @@ public class World extends GameObject {
         else if(GameEvent.GAME_NOTIFICATION.equals(event.getType())) {
             String evt = EventAttr.getData(event);
             Game.gameNotifications.add(new GameNotification(EventAttr.getId(event), evt));
-
-            if (evt.contains("win")) {
-                GameResources.snd("hehehe.ogg").play();
-            }
         }
 
         else if (GameEvent.IDENTIFY.equals(event.getType())) {
@@ -206,6 +202,7 @@ public class World extends GameObject {
         music = GameResources.mus(next);
 
         music.setLooping(true);
+        music.setVolume(.5f);
         music.play();
 
     }

@@ -131,6 +131,8 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             if (!Game.gameNotifications.isEmpty()) {
                 lastGameNotification = new Date();
                 displayGameNotification = Game.gameNotifications.poll();
+
+                notificationShown(displayGameNotification);
             } else {
                 lastGameNotification = null;
                 displayGameNotification = null;
@@ -149,6 +151,12 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
             // Move in the desired direction at that speed
             Game.player.addPos(pos.nor().scl(scl));
+        }
+    }
+
+    private void notificationShown(GameNotification notification) {
+        if (notification.message.contains("win")) {
+            GameResources.snd("hehehe.ogg").play();
         }
     }
 
@@ -550,7 +558,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         }
 
         if (Game.world.activeMap.checkCollision(new Vector2(pos.x, pos.y))) {
-            // XXX Play fail sound how dare you are
+            GameResources.snd("howdareyouare.ogg").play();
             return;
         }
 
