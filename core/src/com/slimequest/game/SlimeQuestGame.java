@@ -23,6 +23,7 @@ import com.slimequest.game.events.GameNetworkRemoveObjectEvent;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.MapTile;
 import com.slimequest.game.game.Player;
+import com.slimequest.game.game.Sign;
 import com.slimequest.game.game.Teleport;
 import com.slimequest.game.game.World;
 import com.slimequest.shared.GameType;
@@ -602,7 +603,8 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             MapObject mapObject = Game.world.activeMap.findObjectAt(new Vector2(pos.x, pos.y));
 
             if (mapObject != null) {
-                if (Teleport.class.isAssignableFrom(mapObject.getClass())) {
+                if (Teleport.class.isAssignableFrom(mapObject.getClass()) ||
+                        Sign.class.isAssignableFrom(mapObject.getClass())) {
                     Game.world.remove(mapObject.id);
                     Game.networking.send(new GameNetworkRemoveObjectEvent(mapObject));
                 }
