@@ -15,19 +15,27 @@ public class MapTiles {
     static {
         // TODO defined by tileset specification...
         // Needs support for groups
-        collideTiles.add(1000);
-        collideTiles.add(2000);
         collideTiles.add(3000);
-        collideTiles.add(1);
-        collideTiles.add(1001);
-        collideTiles.add(3001);
-        collideTiles.add(2);
-        collideTiles.add(1002);
-        collideTiles.add(2002);
+        collideTiles.add(4000);
+        collideTiles.add(5000);
+        collideTiles.add(6000);
+        collideTiles.add(7000);
+
+        collideTiles.add(4001);
+        collideTiles.add(5001);
+        collideTiles.add(6001);
+        collideTiles.add(7001);
+
         collideTiles.add(3002);
-        collideTiles.add(2003);
-        collideTiles.add(3003);
-        collideTiles.add(2004);
-        collideTiles.add(3004);
+        collideTiles.add(4002);
+        collideTiles.add(5002);
+        collideTiles.add(6002);
+        collideTiles.add(7002);
+
+        collideTiles.add(4003);
+        collideTiles.add(5003);
+
+        collideTiles.add(4004);
+        collideTiles.add(5004);
     }
 }

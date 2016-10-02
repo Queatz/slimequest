@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 
 import io.netty.util.internal.ConcurrentSet;
 
@@ -229,6 +230,7 @@ public class World extends GameObject {
         GameObject object = get(id);
 
         if (object == null) {
+            Logger.getAnonymousLogger("Remove: object does not exist with id " + id);
             return;
         }
 
