@@ -84,8 +84,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         Game.world.post(new RunInWorld() {
             @Override
             public void runInWorld(World world) {
-                Game.world.getEvent(new GameNotificationEvent(id, "left the game"));
                 Game.world.remove(id);
+                Game.world.getEvent(new GameNotificationEvent(id, "left the game"));
             }
         });
     }

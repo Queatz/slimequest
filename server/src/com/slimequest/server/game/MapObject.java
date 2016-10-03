@@ -91,7 +91,12 @@ public class MapObject extends GameObject {
     private void sendToClient(GameNetworkEvent event) {
         if (channel != null) {
             System.out.println("Sending event: " + event.json());
-            channel.writeAndFlush(event.json());
+
+            try {
+                channel.writeAndFlush(event.json());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
