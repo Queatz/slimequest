@@ -6,8 +6,10 @@ package com.slimequest.server.game;
 
 public class MapTile {
     int type;
+    int group;
 
-    public MapTile(int type) {
+    public MapTile(int type, int group) {
         this.type = type;
+        this.group = group;
     }
 }

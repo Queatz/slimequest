@@ -61,6 +61,7 @@ public class Map extends GameObject {
             t.add(tile.getKey().x);
             t.add(tile.getKey().y);
             t.add(tile.getValue().type);
+            t.add(tile.getValue().group);
             tiles.add(t);
         }
 
@@ -81,7 +82,14 @@ public class Map extends GameObject {
             int x = tile.getAsJsonArray().get(0).getAsInt();
             int y = tile.getAsJsonArray().get(1).getAsInt();
             int t = tile.getAsJsonArray().get(2).getAsInt();
-            mapTiles.put(new Point(x, y), new MapTile(t));
+
+            int g = 0;
+
+            if (tile.getAsJsonArray().size() > 3) {
+                g = tile.getAsJsonArray().get(3).getAsInt();
+            }
+
+            mapTiles.put(new Point(x, y), new MapTile(t, g));
         }
     }
 
@@ -99,10 +107,16 @@ public class Map extends GameObject {
 
             int tt = tupdate.get(2).getAsInt();
 
+            int g = 0;
+
+            if (tupdate.size() > 3) {
+                g = tupdate.get(3).getAsInt();
+            }
+
             if (tt == -1) {
                 mapTiles.remove(tp);
             } else {
-                mapTiles.put(tp, new MapTile(tt));
+                mapTiles.put(tp, new MapTile(tt, g));
             }
 
             JsonObject evt = new JsonObject();
@@ -159,7 +173,7 @@ public class Map extends GameObject {
     public boolean checkCollision(Point pos) {
         MapTile mapTile = tileBelow(pos);
 
-        return mapTile == null || MapTiles.collideTiles.contains(mapTile.type);
+        return mapTile == null || MapTiles.collideTiles.get(mapTile.group).contains(mapTile.type);
     }
 
     // Find the tile below a point

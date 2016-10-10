@@ -73,11 +73,16 @@ public class Map extends GameObject {
                     int x = tile.get(0).getAsInt();
                     int y = tile.get(1).getAsInt();
                     int type = tile.get(2).getAsInt();
+                    int group = 0;
+
+                    if (tile.size() > 3) {
+                        group = tile.get(3).getAsInt();
+                    }
 
                     if (type == -1) {
                         mapTiles.remove(new Vector2(x, y));
                     } else {
-                        mapTiles.put(new Vector2(x, y), new MapTile(type));
+                        mapTiles.put(new Vector2(x, y), new MapTile(type, group));
                     }
                 }
             }
@@ -97,7 +102,10 @@ public class Map extends GameObject {
         // Get game view
         // Check for tiles at all those location
 
-        Texture tilesImage = GameResources.img("grassy_tiles.png");
+        Texture[] tilesImages = {
+                GameResources.img("grassy_tiles.png"),
+                GameResources.img("underground_tiles.png")
+        };
 
         // Get the visible tile ranges
         int ts = Game.ts;
@@ -116,7 +124,7 @@ public class Map extends GameObject {
                 if (mapTiles.containsKey(vec)) {
                     MapTile tile = mapTiles.get(vec);
 
-                    TextureRegion region = new TextureRegion(tilesImage,
+                    TextureRegion region = new TextureRegion(tilesImages[tile.group],
                             MapTile.getX(tile) * ts,
                             MapTile.getY(tile) * ts,
                             ts, ts);
@@ -143,11 +151,11 @@ public class Map extends GameObject {
         mapObjects.remove(id);
     }
 
-    public boolean editTile(int tX, int tY, int tT) {
+    public boolean editTile(int tX, int tY, int tT, int tG) {
         Vector2 tk = new Vector2(tX, tY);
 
         if (mapTiles.containsKey(tk)) {
-            if (mapTiles.get(tk).type == tT) {
+            if (mapTiles.get(tk).type == tT && mapTiles.get(tk).group == tG) {
                 return false;
             }
         }
@@ -155,10 +163,10 @@ public class Map extends GameObject {
         if (tT == -1) {
             mapTiles.remove(tk);
         } else {
-            mapTiles.put(tk, new MapTile(tT));
+            mapTiles.put(tk, new MapTile(tT, tG));
         }
 
-        Game.networking.send(new GameNetworkEditTileEvent(tX, tY, tT));
+        Game.networking.send(new GameNetworkEditTileEvent(tX, tY, tT, tG));
 
         return true;
     }
@@ -166,7 +174,7 @@ public class Map extends GameObject {
     public boolean checkCollision(Vector2 pos) {
         MapTile mapTile = tileBelow(pos);
 
-        return mapTile == null || MapTiles.collideTiles.contains(mapTile.type);
+        return mapTile == null || MapTiles.collideTiles.get(mapTile.group).contains(mapTile.type);
     }
 
     public MapTile tileBelow(Vector2 pos) {

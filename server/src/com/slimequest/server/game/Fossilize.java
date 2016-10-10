@@ -26,6 +26,7 @@ public class Fossilize implements Serializable {
         register(GameType.TELEPORT, Teleport.class);
         register(GameType.SLIME, Slime.class);
         register(GameType.SIGN, Sign.class);
+        register(GameType.CARROT, Carrot.class);
 //        register(GameType.WORLD, World.class);
     }
 

@@ -1,6 +1,9 @@
 package com.slimequest.shared;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -10,41 +13,59 @@ import java.util.Set;
 public class MapTiles {
 
     // Map of tile IDs that are colliding
-    public final static Set<Integer> collideTiles = new HashSet<>();
+    public final static List<Set<Integer>> collideTiles = new ArrayList<>();
 
     static {
+        Set<Integer> grassy = new HashSet<>();
+        collideTiles.add(grassy);
+
         // TODO defined by tileset specification...
         // Needs support for groups
         // Format = y 00 x
-        collideTiles.add(3000);
+        grassy.add(3000);
 
-        collideTiles.add(3002);
+        grassy.add(3002);
 
-        collideTiles.add(4);
-        collideTiles.add(1004);
-        collideTiles.add(6004);
-        collideTiles.add(7004);
+        grassy.add(4);
+        grassy.add(1004);
+        grassy.add(6004);
+        grassy.add(7004);
 
-        collideTiles.add(5);
-        collideTiles.add(1005);
-        collideTiles.add(2005);
-        collideTiles.add(3005);
-        collideTiles.add(5005);
-        collideTiles.add(6005);
-        collideTiles.add(7005);
+        grassy.add(5);
+        grassy.add(1005);
+        grassy.add(2005);
+        grassy.add(3005);
+        grassy.add(5005);
+        grassy.add(6005);
+        grassy.add(7005);
 
-        collideTiles.add(6);
-        collideTiles.add(1006);
-        collideTiles.add(3006);
-        collideTiles.add(5006);
-        collideTiles.add(6006);
-        collideTiles.add(7006);
+        grassy.add(6);
+        grassy.add(1006);
+        grassy.add(3006);
+        grassy.add(5006);
+        grassy.add(6006);
+        grassy.add(7006);
 
-        collideTiles.add(7);
-        collideTiles.add(1007);
-        collideTiles.add(2007);
-        collideTiles.add(3007);
-        collideTiles.add(5007);
-        collideTiles.add(6007);
+        grassy.add(7);
+        grassy.add(1007);
+        grassy.add(2007);
+        grassy.add(3007);
+        grassy.add(5007);
+        grassy.add(6007);
+
+        Set<Integer> underground = new HashSet<>();
+        collideTiles.add(underground);
+
+        underground.add(0);
+        underground.add(1);
+
+        underground.add(4000);
+        underground.add(5000);
+
+        underground.add(4001);
+        underground.add(5001);
+
+        underground.add(4002);
+        underground.add(5002);
     }
 }

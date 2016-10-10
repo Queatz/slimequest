@@ -1,5 +1,6 @@
 package com.slimequest.game.game;
 
+import com.google.gson.JsonElement;
 import com.slimequest.shared.GameNetworkEvent;
 
 /**
@@ -18,6 +19,10 @@ public class GameObject {
     }
 
     public void render() {
+
+    }
+
+    public void init(JsonElement data) {
 
     }
 }

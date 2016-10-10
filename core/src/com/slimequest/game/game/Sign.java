@@ -34,10 +34,4 @@ public class Sign extends MapObject {
         Texture texture = GameResources.img("sign.png");
         Game.batch.draw(texture, pos.x, pos.y);
     }
-
-    private boolean doesTrigger(MapObject object) {
-        int ts2 = Game.ts / 2;
-        return Math.abs(object.pos.x - (pos.x + ts2)) <= ts2 &&
-                Math.abs(object.pos.y - (pos.y + ts2)) <= ts2;
-    }
 }

@@ -52,6 +52,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     private int tapCount;
     private Date lastTapUp = new Date();
     private boolean didChoosePaint;
+    private String activeTileMap = "grassy";
     private int paintTile;
     private Vector2 lastTapPos;
     private Debouncer chooseTileDebouncer = new Debouncer(new Runnable() {
@@ -154,7 +155,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             );
 
             // Find the desired movement speed
-            float scl = Math.min(maxPlayerSpeed, pos.len());
+            float scl = Math.min((((Player) Game.player).hasEatenCarrot ? 2 : 1) * maxPlayerSpeed, pos.len());
 
             // Move in the desired direction at that speed
             Game.player.addPos(pos.nor().scl(scl));
@@ -381,7 +382,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             Game.shapeRenderer.end();
 
             Game.batch.begin();
-            Texture mapTiles = GameResources.img("grassy_tiles.png");
+            Texture mapTiles = GameResources.img(activeTileMap + "_tiles.png");
             Game.batch.draw(mapTiles, 0, 0);
 
             Texture teleporter = GameResources.img("teleport_edit_mode.png");
@@ -390,8 +391,14 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
             Texture sign = GameResources.img("sign.png");
             Game.batch.draw(sign, teleporter.getWidth(), Game.viewportSize - sign.getHeight());
 
+            Texture carrot = GameResources.img("carrot.png");
+            Game.batch.draw(carrot, teleporter.getWidth() + sign.getWidth(), Game.viewportSize - sign.getHeight());
+
             Texture delObj = GameResources.img("del_obj.png");
             Game.batch.draw(delObj, Game.viewportSize - Game.ts * 2, Game.viewportSize - teleporter.getHeight());
+
+            Texture swap = GameResources.img("swap.png");
+            Game.batch.draw(swap, Game.viewportSize - Game.ts, Game.viewportSize - teleporter.getHeight());
             Game.batch.end();
 
             // Editing map
@@ -528,8 +535,12 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                     chooseObject(GameType.TELEPORT);
                 } else if (new Rectangle(ts, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
                     chooseObject(GameType.SIGN);
+                } else if (new Rectangle(ts * 2, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
+                    chooseObject(GameType.CARROT);
                 } else if (new Rectangle(Game.viewportSize - ts * 2, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
                     chooseObject("");
+                } else if (new Rectangle(Game.viewportSize - ts, Game.viewportSize - ts, ts, ts).contains(t.x, t.y)) {
+                    switchTileMap();
                 }
             } else {
                 int h = GameResources.img("grassy_tiles.png").getHeight();
@@ -571,6 +582,14 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         return true;
     }
 
+    private void switchTileMap() {
+        if ("grassy".equals(activeTileMap)) {
+            activeTileMap = "underground";
+        } else {
+            activeTileMap = "grassy";
+        }
+    }
+
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         return false;
@@ -591,7 +610,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         int tX = (int) Math.floor(pos.x / Game.ts);
         int tY = (int) Math.floor(pos.y / Game.ts);
 
-        Game.world.activeMap.editTile(tX, tY, paintTile);
+        Game.world.activeMap.editTile(tX, tY, paintTile, "grassy".equals(activeTileMap) ? 0 : 1);
     }
 
     // Edit: draw object

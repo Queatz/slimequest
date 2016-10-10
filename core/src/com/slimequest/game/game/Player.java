@@ -27,6 +27,8 @@ public class Player extends MapObject {
     // Send pos to server in intervals
     private Debouncer movementDebouncer;
     public boolean frozen;
+    public boolean hasEatenCarrot;
+    private Date hasEatenCarrotExpiry;
 
     private Date lastTag = new Date();
 
@@ -56,21 +58,26 @@ public class Player extends MapObject {
     @Override
     public void getEvent(GameNetworkEvent event) {
         // Update frozen state of object
-        if (Player.class.isAssignableFrom(getClass())) {
-            if (event.getData().getAsJsonObject().has(GameAttr.FROZEN)) {
-                frozen = event.getData().getAsJsonObject().get(GameAttr.FROZEN).getAsBoolean();
+        if (event.getData().getAsJsonObject().has(GameAttr.FROZEN)) {
+            frozen = event.getData().getAsJsonObject().get(GameAttr.FROZEN).getAsBoolean();
 
-                if (Game.world.itPlayerId != null) {
-                    Game.gameNotifications.add(new GameNotification(this.id, frozen ? "frozen!" : "unfrozen!"));
+            if (Game.world.itPlayerId != null) {
+                Game.gameNotifications.add(new GameNotification(this.id, frozen ? "frozen!" : "unfrozen!"));
 
-                    GameResources.snd(frozen ? "gotted.ogg" : "haha.ogg").play();
-                }
+                GameResources.snd(frozen ? "gotted.ogg" : "haha.ogg").play();
             }
         }
     }
 
     @Override
     public void update() {
+        if (hasEatenCarrot) {
+            if (new Date().after(hasEatenCarrotExpiry)) {
+                hasEatenCarrotExpiry = null;
+                hasEatenCarrot = false;
+            }
+        }
+
         if (Game.player.id.equals(id) && !pos.equals(lastPos)) {
             if (movementDebouncer == null) {
                 movementDebouncer = new Debouncer(new Runnable() {
@@ -159,6 +166,16 @@ public class Player extends MapObject {
 
         // Reset color
         Game.batch.setColor(1f, 1f , 1f, 1f);
+    }
+
+    public void eatCarrot() {
+        hasEatenCarrot = true;
+
+        if (hasEatenCarrotExpiry == null) {
+            hasEatenCarrotExpiry = new Date();
+        }
+
+        hasEatenCarrotExpiry = new Date(hasEatenCarrotExpiry.getTime() + 1000 * 30);
     }
 
     public void snapTo(Vector2 pos) {

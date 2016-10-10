@@ -2,6 +2,7 @@ package com.slimequest.game.game;
 
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
+import com.slimequest.game.Game;
 
 /**
  * Created by jacob on 9/11/16.
@@ -70,5 +71,11 @@ public class MapObject extends GameObject {
     public void addPos(Vector2 pos) {
         this.pos.set(targetPos.add(pos));
         checkCollide();
+    }
+
+    public boolean doesTrigger(MapObject object) {
+        int ts2 = Game.ts / 2;
+        return Math.abs(object.pos.x - (pos.x + ts2)) <= ts2 &&
+                Math.abs(object.pos.y - (pos.y + ts2)) <= ts2;
     }
 }

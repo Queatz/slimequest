@@ -159,6 +159,8 @@ public class World extends GameObject {
                 ((MapObject) object).initialPos(new Vector2(x, y));
             }
 
+            object.init(event.getData());
+
             // In case the player moves maps, re-associate
             if (Game.playerId.equals(object.id)) {
                 activeMap = ((MapObject) object).map;
@@ -222,6 +224,9 @@ public class World extends GameObject {
                 break;
             case GameType.TELEPORT:
                 object = new Teleport();
+                break;
+            case GameType.CARROT:
+                object = new Carrot();
                 break;
             default:
                 Logger.getAnonymousLogger().warning("Tried to create unknown object type: " + type);

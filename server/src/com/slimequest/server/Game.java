@@ -2,6 +2,7 @@ package com.slimequest.server;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.slimequest.server.game.Carrot;
 import com.slimequest.server.game.Map;
 import com.slimequest.server.game.MapObject;
 import com.slimequest.server.game.Player;
@@ -80,6 +81,10 @@ public class Game {
 
         if (Player.class.isAssignableFrom(obj.getClass())) {
             json.add(GameAttr.FROZEN, new JsonPrimitive(((Player) obj).frozen));
+        }
+
+        else if (Carrot.class.isAssignableFrom(obj.getClass())) {
+            json.add(GameAttr.EATEN, new JsonPrimitive(((Carrot) obj).isEaten));
         }
 
         return json;

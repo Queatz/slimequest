@@ -17,4 +17,5 @@ public class GameAttr {
     public static final String TILES = "tiles";
     public static final String TILE = "tile";
     public static final String SELF_RECEIVE = "selfReceive";
+    public static final String EATEN = "eaten";
 }

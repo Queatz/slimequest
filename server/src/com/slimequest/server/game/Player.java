@@ -99,6 +99,12 @@ public class Player extends MapObject {
                 return;
             }
 
+            // Goodies
+            if (Carrot.class.isAssignableFrom(other.getClass())) {
+                ((Carrot) other).getEvent(event);
+                return;
+            }
+
             // If there is no itPlayer, then no tagging should occur besides the butterflies
             if (itPlayer == null) {
                 if (!Slime.class.isAssignableFrom(other.getClass())) {

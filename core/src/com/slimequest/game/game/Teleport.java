@@ -37,10 +37,4 @@ public class Teleport extends MapObject {
             Game.batch.draw(GameResources.img("teleport_edit_mode.png"), pos.x, pos.y);
         }
     }
-
-    private boolean doesTrigger(MapObject object) {
-        int ts2 = Game.ts / 2;
-        return Math.abs(object.pos.x - (pos.x + ts2)) <= ts2 &&
-                Math.abs(object.pos.y - (pos.y + ts2)) <= ts2;
-    }
 }

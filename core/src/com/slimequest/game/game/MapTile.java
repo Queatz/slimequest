@@ -12,13 +12,14 @@ public class MapTile {
     // TODO Group not supported yet
     int group;
 
-    public MapTile(int type) {
+    public MapTile(int type, int group) {
         this.type = type;
+        this.group = group;
     }
 
     /*
-     * Get the X coordinate of a tile in the texture
-     */
+         * Get the X coordinate of a tile in the texture
+         */
     public static int getX(MapTile tile) {
         return tile.type % 1000;
     }
