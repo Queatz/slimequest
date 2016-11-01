@@ -53,6 +53,12 @@ public class MapTiles {
         grassy.add(5007);
         grassy.add(6007);
 
+        // Clouds
+        grassy.add(4004);
+        grassy.add(4005);
+        grassy.add(4006);
+        grassy.add(4007);
+
         Set<Integer> underground = new HashSet<>();
         collideTiles.add(underground);
 

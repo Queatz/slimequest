@@ -28,7 +28,9 @@ public class Teleport extends MapObject {
     public JsonObject fossilize() {
         JsonObject fossil = super.fossilize();
 
-        fossil.add("target", new JsonPrimitive(target));
+        if (target != null) {
+            fossil.add("target", new JsonPrimitive(target));
+        }
 
         return fossil;
     }
@@ -36,7 +38,10 @@ public class Teleport extends MapObject {
     @Override
     public void defossilize(JsonObject fossil) {
         super.defossilize(fossil);
-        target = fossil.get("target").getAsString();
+
+        if (fossil.has("target")) {
+            target = fossil.get("target").getAsString();
+        }
     }
 
     @Override

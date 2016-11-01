@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import com.slimequest.game.events.GameNetworkCreateObjectEvent;
 import com.slimequest.game.events.GameNetworkEditTeleportTargetEvent;
 import com.slimequest.game.events.GameNetworkRemoveObjectEvent;
+import com.slimequest.game.game.Carrot;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.MapTile;
 import com.slimequest.game.game.Player;
@@ -623,7 +624,8 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
             if (mapObject != null) {
                 if (Teleport.class.isAssignableFrom(mapObject.getClass()) ||
-                        Sign.class.isAssignableFrom(mapObject.getClass())) {
+                        Sign.class.isAssignableFrom(mapObject.getClass()) ||
+                        Carrot.class.isAssignableFrom(mapObject.getClass())) {
                     Game.world.remove(mapObject.id);
                     Game.networking.send(new GameNetworkRemoveObjectEvent(mapObject));
                 }
