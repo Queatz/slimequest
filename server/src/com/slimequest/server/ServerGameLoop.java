@@ -4,13 +4,7 @@ import com.slimequest.server.game.Map;
 import com.slimequest.server.game.Slime;
 import com.slimequest.server.game.World;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
-
-import java.io.File;
 import java.util.Date;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by jacob on 9/14/16.
@@ -20,14 +14,15 @@ public class ServerGameLoop extends Thread {
 
     @Override
     public void run() {
-        Game.openDb();
-
         Game.world = new World();
 
-        if (Game.fossils.isEmpty()) {
+        GameArangoDb.loadAll();
+
+        if (GameArangoDb.isEmpty()) {
             Game.startMap = new Map();
             Game.startMap.id = "bunny";
             Game.world.add(Game.startMap);
+            GameArangoDb.save(Game.startMap);
 
             // Add other maps...
             Map map = new Map();
@@ -36,19 +31,17 @@ public class ServerGameLoop extends Thread {
             map = new Map();
             map.id = "underground";
             Game.world.add(map);
+            GameArangoDb.save(map);
 
             // Add a slime :D
             Slime slime = new Slime();
             slime.map = Game.startMap;
             slime.id = "iamslime";
             Game.world.add(slime);
+            GameArangoDb.save(slime);
         }
 
         System.out.println("Loading game...");
-
-        Game.world.load(Game.fossils);
-
-        Game.closeDb();
 
         final boolean[] alive = {true};
 
@@ -95,10 +88,7 @@ public class ServerGameLoop extends Thread {
 
         System.out.println("Saving game...");
 
-        Game.openDb();
-        Game.world.save(Game.fossils);
-        Game.closeDb();
-
+        GameArangoDb.saveAll();
         Game.channel.close();
 
         System.out.println("Game loop finished");

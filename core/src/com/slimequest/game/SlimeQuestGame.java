@@ -453,6 +453,11 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.batch.setProjectionMatrix(cam.combined);
     }
 
+    private void setVisibleRange(int range) {
+        Game.viewportSize = range;
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
     @Override
     public boolean scrolled(int amount) {
         return false;
@@ -599,10 +604,41 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     // Editing stuff
 
     private void toggleEditing() {
+        if (!Game.admin) {
+            auth();
+            return;
+        }
+
         Game.isEditing = !Game.isEditing;
+
+        if (Game.isEditing) {
+            setVisibleRange(240);
+        } else {
+            setVisibleRange(160);
+        }
 
         // Also make sure they start off choosing their edit tool
         didChoosePaint = false;
+    }
+
+    private void auth() {
+        Input.TextInputListener listener = new Input.TextInputListener() {
+            @Override
+            public void input(String text) {
+                if (!Game.adminPass.equals(text)) {
+                    return;
+                }
+
+                Game.admin = true;
+                toggleEditing();
+            }
+
+            @Override
+            public void canceled() {
+            }
+        };
+
+        Gdx.input.getTextInput(listener, "Enter password", "", "");
     }
 
     // Edit: draw tile

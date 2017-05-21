@@ -3,6 +3,7 @@ package com.slimequest.server.game;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
+import com.slimequest.server.GameArangoDb;
 import com.slimequest.server.RunInWorld;
 import com.slimequest.server.events.GameNotificationEvent;
 import com.slimequest.server.events.GameStateEvent;
@@ -18,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 import io.netty.util.internal.ConcurrentSet;
@@ -188,12 +188,9 @@ public class World extends GameObject {
         GameObject gameObject =  objects.get(id);
 
         if (load && gameObject == null) {
-            Game.openDb();
-            String string = Game.fossils.get(id);
-            Game.closeDb();
+            gameObject = GameArangoDb.get(id);
 
-            if (string != null) {
-                gameObject = (GameObject) Fossilize.defossilize(Json.from(string, JsonObject.class));
+            if (gameObject != null) {
                 add(gameObject);
             }
         }
@@ -245,6 +242,9 @@ public class World extends GameObject {
 
         // Remove from world
         objects.remove(id);
+
+        // Remove fossil
+        GameArangoDb.delete(id);
 
         // If the player who is it leaves, notify all clients
         if (id.equals(gameState.itPlayer)) {
@@ -320,36 +320,10 @@ public class World extends GameObject {
         pendingPosts.add(runInWorld);
     }
 
-    // Defossilize the world
-    public void load(ConcurrentMap<String, String> fossils) {
-        for (String slimeObj : fossils.values()) {
-            GameObject gameObject = (GameObject) Fossilize.defossilize(Json.from(slimeObj, JsonObject.class));
-            // add(gameObject); // See GameObject.java
-
-            if (gameObject == null) {
-                continue;
-            }
-
-            System.out.println("Added " + gameObject.getType() + "...");
-        }
-    }
-
     // Fossilize the world
-    public void save(ConcurrentMap<String, String> fossils) {
-        // Make sure the database is cleared
-        fossils.clear();
-
+    public void save() {
         for (GameObject gameObject : objects.values()) {
-            JsonObject fossil = Fossilize.fossilize(gameObject);
-
-            if (fossil == null) {
-                System.out.println("Skipping save of " + gameObject.getType() + "...");
-                continue;
-            }
-
-            fossils.put(fossil.get(GameAttr.ID).getAsString(), Json.to(fossil));
-
-            System.out.println("Saved " + gameObject.getType() + "...");
+            GameArangoDb.save(gameObject);
         }
     }
 

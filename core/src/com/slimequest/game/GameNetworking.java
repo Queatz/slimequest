@@ -73,7 +73,7 @@ public class GameNetworking extends Thread {
             });
 
             // Start the client.
-            channel = b.connect(Game.serverAddress, 8080).sync().channel();
+            channel = b.connect(Game.serverAddress, Game.serverPort).sync().channel();
 
             Game.connecting = false;
 

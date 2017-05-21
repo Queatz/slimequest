@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.World;
 
+import java.util.Hashtable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -56,7 +57,8 @@ public class Game {
     public static boolean connectionError;
     public static boolean connecting;
     public static String serverAddress = "104.198.99.77";
-    public static boolean alive;
+    public static int serverPort = 3222;
+    public static boolean alive = false;
 
     public static String credits = "[ROYAL]Bunny Freeze Tag\n\n" +
 
@@ -87,8 +89,12 @@ public class Game {
             ""
             ;
 
+    // Can they edit stuff
+    public static boolean admin = false;
+    public static String adminPass = "boop";
+
     // local
     static {
-//        serverAddress = "192.168.0.107";
+         serverAddress = "192.168.1.104";
     }
 }
