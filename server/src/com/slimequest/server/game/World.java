@@ -1,6 +1,5 @@
 package com.slimequest.server.game;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
 import com.slimequest.server.GameArangoDb;
@@ -12,7 +11,6 @@ import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
 import com.slimequest.shared.GameType;
-import com.slimequest.shared.Json;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -78,10 +76,13 @@ public class World extends GameObject {
             return;
         } if (GameEvent.REMOVE_OBJECT.equals(event.getType())) {
             remove(EventAttr.getId(event));
+            GameArangoDb.delete(EventAttr.getId(event));
 
             return;
         } else if (GameEvent.CREATE_OBJECT.equals(event.getType())) {
-            add((MapObject) Fossilize.defossilize(event.getData().getAsJsonObject()));
+            MapObject mapObject = (MapObject) Fossilize.defossilize(event.getData().getAsJsonObject());
+            add(mapObject);
+            GameArangoDb.save(mapObject);
 
             return;
         } else if (GameEvent.GAME_NOTIFICATION.equals(event.getType())) {

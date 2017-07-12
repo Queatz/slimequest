@@ -1,6 +1,7 @@
 package com.slimequest.server.game;
 
 import com.slimequest.server.Game;
+import com.slimequest.server.GameArangoDb;
 import com.slimequest.server.events.GameStateEvent;
 import com.slimequest.shared.GameEvent;
 import com.slimequest.shared.GameNetworkEvent;
@@ -29,6 +30,7 @@ public class Carrot extends MapObject {
             isEaten = false;
             popsAt = null;
             Game.world.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson(this)));
+            GameArangoDb.save(this);
         }
     }
 
@@ -40,6 +42,7 @@ public class Carrot extends MapObject {
             // Reload in 2 minutes
             popsAt = new Date(new Date().getTime() + 1000 * 60 * 2);
             Game.world.getEvent(new GameNetworkEvent(GameEvent.OBJECT_STATE, Game.objJson(this)));
+            GameArangoDb.save(this);
         }
     }
 }

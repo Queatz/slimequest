@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
+import com.slimequest.server.GameArangoDb;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
@@ -118,6 +119,8 @@ public class Map extends GameObject {
             } else {
                 mapTiles.put(tp, new MapTile(tt, g));
             }
+
+            GameArangoDb.save(this);
 
             JsonObject evt = new JsonObject();
             JsonArray tiles = new JsonArray();

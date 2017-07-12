@@ -1,14 +1,9 @@
 package com.slimequest.server;
 
 
-import com.slimequest.server.game.Map;
-import com.slimequest.server.game.Slime;
-import com.slimequest.server.game.World;
-
 import java.nio.charset.Charset;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -35,7 +30,8 @@ public class SlimeQuestServer {
     private void run() throws Exception {
 
         // Start the game loop
-        new ServerGameLoop().start();
+        ServerGameLoop serverGameLoop = new ServerGameLoop();
+        serverGameLoop.start();
 
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();

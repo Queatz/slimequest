@@ -3,6 +3,7 @@ package com.slimequest.server.game;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.slimequest.server.Game;
+import com.slimequest.server.GameArangoDb;
 import com.slimequest.shared.EventAttr;
 import com.slimequest.shared.GameAttr;
 import com.slimequest.shared.GameEvent;
@@ -61,6 +62,7 @@ public class Teleport extends MapObject {
                 }
 
                 target = EventAttr.getData(event);
+                GameArangoDb.save(this);
 
                 break;
             case GameEvent.JOIN:
