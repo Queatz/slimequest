@@ -1,13 +1,9 @@
 package com.slimequest.server;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.slimequest.server.events.GameNotificationEvent;
-import com.slimequest.server.game.MapObject;
 import com.slimequest.server.game.Player;
 import com.slimequest.server.game.World;
 import com.slimequest.shared.GameNetworkEvent;
-import com.slimequest.shared.GameType;
 import com.slimequest.shared.Json;
 
 import io.netty.channel.ChannelFuture;
@@ -43,7 +39,6 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
-        ctx.close();
     }
 
     @Override
