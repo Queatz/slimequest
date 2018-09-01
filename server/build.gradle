@@ -16,11 +16,15 @@ eclipse.project {
 
 dependencies {
     compile project(":shared")
-    compile group: 'io.netty', name: 'netty-all', version: '4.1.16.Final'
-    compile group: 'org.mapdb', name: 'mapdb', version: '3.0.1'
-    compile 'com.arangodb:arangodb-java-driver:4.1.10'
+    compile group: 'io.netty', name: 'netty-all', version: '5.0.0.Alpha2'
+    compile 'com.arangodb:arangodb-java-driver:4.4.0'
 }
 
-manifest {
+jar.manifest {
     attributes 'Main-Class': mainClassName
+}
+
+
+jar.from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 }

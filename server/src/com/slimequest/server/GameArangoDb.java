@@ -5,13 +5,13 @@ import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import com.slimequest.server.game.Fossilize;
 import com.slimequest.server.game.GameObject;
 import com.slimequest.shared.Json;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by jacob on 5/21/17.
@@ -101,9 +101,9 @@ public class GameArangoDb {
     }
 
     public static GameObject get(String id) {
-        ArangoCursor<Fossil> cursor = getDb().query("for x in " + DB_COLLECTION + " filter x._key == @id return x", ImmutableMap.<String, Object>of(
-                "id", id
-        ), null, Fossil.class);
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        ArangoCursor<Fossil> cursor = getDb().query("for x in " + DB_COLLECTION + " filter x._key == @id return x", params, null, Fossil.class);
 
         GameObject gameObject = null;
 

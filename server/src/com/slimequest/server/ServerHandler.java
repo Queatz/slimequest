@@ -19,7 +19,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, String msg) {
+    public void messageReceived(ChannelHandlerContext ctx, String msg) {
         System.out.println("Got event: " + msg);
         final GameNetworkEvent event = Json.from(msg, GameNetworkEvent.class);
 
