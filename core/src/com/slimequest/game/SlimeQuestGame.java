@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -497,7 +496,11 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
                     t.y > Game.viewportSize - closeButton.getHeight()) {
                     toggleEditing();
                 } else if (paintObject != null) {
-                    drawObject(dragging);
+                    if ("".equals(paintObject)) {
+                        delObject(dragging);
+                    } else {
+                        drawObject(dragging);
+                    }
                 } else {
                     drawTile(dragging);
                 }
@@ -517,8 +520,13 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         dragging.y = screenY;
 
         // Tiles are drawn on drag
-        if (Game.isEditing && paintObject == null && didChoosePaint) {
-            drawTile(dragging);
+        if (Game.isEditing && didChoosePaint) {
+            // Delete objects
+            if ("".equals(paintObject)) {
+                delObject(dragging);
+            } else {
+                drawTile(dragging);
+            }
         }
 
         return true;
@@ -650,25 +658,24 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
         Game.world.activeMap.editTile(tX, tY, paintTile, "grassy".equals(activeTileMap) ? 0 : 1);
     }
 
+    // Edit: del object
+    private void delObject(Vector2 at) {
+        Vector3 pos = cam.unproject(new Vector3(at.x, at.y, 0));
+        MapObject mapObject = Game.world.activeMap.findObjectAt(new Vector2(pos.x, pos.y));
+
+        if (mapObject != null) {
+            if (Teleport.class.isAssignableFrom(mapObject.getClass()) ||
+                    Sign.class.isAssignableFrom(mapObject.getClass()) ||
+                    Carrot.class.isAssignableFrom(mapObject.getClass())) {
+                Game.world.remove(mapObject.id);
+                Game.networking.send(new GameNetworkRemoveObjectEvent(mapObject));
+            }
+        }
+    }
+
     // Edit: draw object
     private void drawObject(Vector2 at) {
         Vector3 pos = cam.unproject(new Vector3(at.x, at.y, 0));
-
-        // Delete objects
-        if ("".equals(paintObject)) {
-            MapObject mapObject = Game.world.activeMap.findObjectAt(new Vector2(pos.x, pos.y));
-
-            if (mapObject != null) {
-                if (Teleport.class.isAssignableFrom(mapObject.getClass()) ||
-                        Sign.class.isAssignableFrom(mapObject.getClass()) ||
-                        Carrot.class.isAssignableFrom(mapObject.getClass())) {
-                    Game.world.remove(mapObject.id);
-                    Game.networking.send(new GameNetworkRemoveObjectEvent(mapObject));
-                }
-            }
-
-            return;
-        }
 
         if (Game.world.activeMap.checkCollision(new Vector2(pos.x, pos.y))) {
             GameResources.snd("howdareyouare.ogg").play();
