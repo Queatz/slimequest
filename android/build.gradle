@@ -1,6 +1,6 @@
 android {
-    buildToolsVersion '26.0.2'
-    compileSdkVersion 26
+    buildToolsVersion '28.0.2'
+    compileSdkVersion 28
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -11,13 +11,11 @@ android {
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
         }
-
-        instrumentTest.setRoot('tests')
     }
     defaultConfig {
         applicationId "com.slimequest.game"
-        minSdkVersion 8
-        targetSdkVersion 23
+        minSdkVersion 14
+        targetSdkVersion 28
     }
 
     compileOptions {
