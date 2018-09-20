@@ -11,6 +11,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.string.StringDecoder;
@@ -50,6 +51,7 @@ public class SlimeQuestServer {
                             ch.pipeline()
                                     .addLast(new HttpRequestDecoder())
                                     .addLast(new HttpRequestEncoder())
+                                    .addLast(new HttpObjectAggregator(Integer.MAX_VALUE))
                                     .addLast(new StringDecoder(Charset.forName("UTF-8")))
                                     .addLast(new StringEncoder(Charset.forName("UTF-8")))
                                     .addLast(new ServerHandler());
