@@ -1,6 +1,8 @@
 package com.slimequest.server;
 
 
+import java.nio.charset.Charset;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -9,9 +11,11 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpRequestEncoder;
+import io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
+import io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 
 /**
  * Just initiation stuff...
@@ -45,9 +49,11 @@ public class SlimeQuestServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new HttpRequestDecoder())
-                                    .addLast(new HttpRequestEncoder())
-                                    .addLast(new HttpObjectAggregator(Integer.MAX_VALUE))
+                                    .addLast(new WebSocket13FrameDecoder(false, false, Integer.MAX_VALUE))
+                                    .addLast(new WebSocket13FrameEncoder(false))
+                                    .addLast(new WebSocketFrameAggregator(Integer.MAX_VALUE))
+                                    .addLast(new StringDecoder(Charset.forName("UTF-8")))
+                                    .addLast(new StringEncoder(Charset.forName("UTF-8")))
                                     .addLast(new ServerHandler());
                         }
                     })
