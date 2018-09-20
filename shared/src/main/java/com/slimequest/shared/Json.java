@@ -11,6 +11,7 @@ public class Json {
         try {
             return new GsonBuilder().setDateFormat(DateFormat.FULL, DateFormat.FULL).create().fromJson(json, clazz);
         } catch (JsonSyntaxException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -19,6 +20,7 @@ public class Json {
         try {
             return new GsonBuilder().setDateFormat(DateFormat.FULL, DateFormat.FULL).create().fromJson(json, clazz);
         } catch (JsonSyntaxException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -27,6 +29,7 @@ public class Json {
         try {
             return new GsonBuilder().setDateFormat(DateFormat.FULL, DateFormat.FULL).create().toJson(object);
         } catch (JsonSyntaxException e) {
+            e.printStackTrace();
             return null;
         }
     }
