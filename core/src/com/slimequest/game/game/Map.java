@@ -53,9 +53,7 @@ public class Map extends GameObject {
             } else {
                 mapObject.moveTo(new Vector2(x, y));
             }
-        }
-
-        else if (GameEvent.MAP_TILES.equals(event.getType())) {
+        } else if (GameEvent.MAP_TILES.equals(event.getType())) {
             String mapId = EventAttr.getId(event);
 
             // Discard the tiles if they aren't for the current map

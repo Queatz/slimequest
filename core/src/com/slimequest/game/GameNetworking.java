@@ -3,11 +3,9 @@ package com.slimequest.game;
 import com.slimequest.shared.GameNetworkEvent;
 
 import java.nio.charset.Charset;
-import java.util.logging.Logger;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;

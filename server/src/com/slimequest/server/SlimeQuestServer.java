@@ -4,6 +4,7 @@ package com.slimequest.server;
 import java.nio.charset.Charset;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -11,6 +12,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.compression.SnappyFrameDecoder;
 import io.netty.handler.codec.compression.SnappyFrameEncoder;
 import io.netty.handler.codec.string.StringDecoder;
@@ -48,6 +50,7 @@ public class SlimeQuestServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
+                                    .addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, Unpooled.wrappedBuffer(new byte[]{'\n'})))
                                     .addLast(new SnappyFrameDecoder())
                                     .addLast(new SnappyFrameEncoder())
                                     .addLast(new StringDecoder(Charset.forName("UTF-8")))
