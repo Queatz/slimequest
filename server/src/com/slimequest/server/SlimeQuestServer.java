@@ -49,7 +49,7 @@ public class SlimeQuestServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new WebSocket13FrameDecoder(false, false, Integer.MAX_VALUE))
+                                    .addLast(new WebSocket13FrameDecoder(false, true, Integer.MAX_VALUE))
                                     .addLast(new WebSocket13FrameEncoder(false))
                                     .addLast(new WebSocketFrameAggregator(Integer.MAX_VALUE))
                                     .addLast(new StringDecoder(Charset.forName("UTF-8")))
