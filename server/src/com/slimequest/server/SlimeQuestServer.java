@@ -11,8 +11,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.compression.Bzip2Decoder;
-import io.netty.handler.codec.compression.Bzip2Encoder;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
@@ -48,8 +47,7 @@ public class SlimeQuestServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new Bzip2Decoder())
-                                    .addLast(new Bzip2Encoder())
+                                    .addLast(new JsonObjectDecoder())
                                     .addLast(new StringDecoder(Charset.forName("UTF-8")))
                                     .addLast(new StringEncoder(Charset.forName("UTF-8")))
                                     .addLast(new ServerHandler());
