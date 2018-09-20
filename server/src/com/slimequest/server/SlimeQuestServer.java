@@ -11,12 +11,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.spdy.SpdyHttpDecoder;
-import io.netty.handler.codec.spdy.SpdyHttpEncoder;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-
-import static io.netty.handler.codec.spdy.SpdyVersion.SPDY_3_1;
 
 /**
  * Just initiation stuff...
@@ -50,8 +48,8 @@ public class SlimeQuestServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new SpdyHttpDecoder(SPDY_3_1, Integer.MAX_VALUE))
-                                    .addLast(new SpdyHttpEncoder(SPDY_3_1))
+                                    .addLast(new HttpRequestDecoder())
+                                    .addLast(new HttpRequestEncoder())
                                     .addLast(new StringDecoder(Charset.forName("UTF-8")))
                                     .addLast(new StringEncoder(Charset.forName("UTF-8")))
                                     .addLast(new ServerHandler());
