@@ -13,10 +13,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.compression.SnappyFrameDecoder;
-import io.netty.handler.codec.compression.SnappyFrameEncoder;
+import io.netty.handler.codec.spdy.SpdyHttpDecoder;
+import io.netty.handler.codec.spdy.SpdyHttpEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+
+import static io.netty.handler.codec.spdy.SpdyVersion.SPDY_3_1;
 
 /**
  * Created by jacob on 9/11/16.
@@ -62,8 +64,8 @@ public class GameNetworking extends Thread {
                     Game.connectionError = false;
 
                     ch.pipeline()
-                            .addLast(new SnappyFrameDecoder())
-                            .addLast(new SnappyFrameEncoder())
+                            .addLast(new SpdyHttpDecoder(SPDY_3_1, Integer.MAX_VALUE))
+                            .addLast(new SpdyHttpEncoder(SPDY_3_1))
                             .addLast(new StringDecoder(Charset.forName("UTF-8")))
                             .addLast(new StringEncoder(Charset.forName("UTF-8")))
                             .addLast(new ClientHandler());
