@@ -1,8 +1,6 @@
 package com.slimequest.server;
 
 
-import java.nio.charset.Charset;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -14,8 +12,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpRequestEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 /**
  * Just initiation stuff...
@@ -52,8 +48,6 @@ public class SlimeQuestServer {
                                     .addLast(new HttpRequestDecoder())
                                     .addLast(new HttpRequestEncoder())
                                     .addLast(new HttpObjectAggregator(Integer.MAX_VALUE))
-                                    .addLast(new StringDecoder(Charset.forName("UTF-8")))
-                                    .addLast(new StringEncoder(Charset.forName("UTF-8")))
                                     .addLast(new ServerHandler());
                         }
                     })

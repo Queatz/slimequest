@@ -2,8 +2,6 @@ package com.slimequest.game;
 
 import com.slimequest.shared.GameNetworkEvent;
 
-import java.nio.charset.Charset;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,8 +14,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpRequestEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 /**
  * Created by jacob on 9/11/16.
@@ -66,8 +62,6 @@ public class GameNetworking extends Thread {
                             .addLast(new HttpRequestDecoder())
                             .addLast(new HttpRequestEncoder())
                             .addLast(new HttpObjectAggregator(Integer.MAX_VALUE))
-                            .addLast(new StringDecoder(Charset.forName("UTF-8")))
-                            .addLast(new StringEncoder(Charset.forName("UTF-8")))
                             .addLast(new ClientHandler());
                 }
             });
