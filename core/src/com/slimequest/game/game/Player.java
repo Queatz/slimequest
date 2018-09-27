@@ -3,6 +3,7 @@ package com.slimequest.game.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.slimequest.game.Debouncer;
 import com.slimequest.game.Game;
 import com.slimequest.game.GameNotification;
@@ -15,6 +16,8 @@ import com.slimequest.shared.GameNetworkEvent;
 
 import java.util.Date;
 import java.util.HashMap;
+
+import static java.lang.Math.round;
 
 /**
  * Created by jacob on 9/11/16.
@@ -31,6 +34,7 @@ public class Player extends MapObject {
     private Date hasEatenCarrotExpiry;
 
     private Date lastTag = new Date();
+    private String name = "Zach";
 
     private enum Direction {
         LEFT,
@@ -162,10 +166,18 @@ public class Player extends MapObject {
 
         // XXX TODO handle case of no img loaded yet, draw random circle......
         // When have resource server....
-        Game.batch.draw(texture, pos.x - texture.getWidth() / 2, pos.y - texture.getHeight() / 2);
+        Game.batch.draw(texture, round(pos.x) - texture.getWidth() / 2, round(pos.y) - texture.getHeight() / 2);
 
         // Reset color
         Game.batch.setColor(1f, 1f , 1f, 1f);
+
+        Game.font.draw(Game.batch,
+                name,
+                round(pos.x) - 50,
+                round(pos.y) - 16,
+                100,
+                Align.center,
+                true);
     }
 
     public void eatCarrot() {

@@ -31,6 +31,8 @@ import com.slimequest.shared.GameType;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static java.lang.Math.round;
+
 public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor {
 
     // The game camera
@@ -179,8 +181,8 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
         // Center camera on player
         if (Game.player != null) {
-            cam.position.x = Game.player.pos.x;
-            cam.position.y = Game.player.pos.y;
+            cam.position.x = round(Game.player.pos.x);
+            cam.position.y = round(Game.player.pos.y);
             cam.update();
         }
 

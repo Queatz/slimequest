@@ -101,7 +101,7 @@ public class Player extends MapObject {
 
             // Goodies
             if (Carrot.class.isAssignableFrom(other.getClass())) {
-                ((Carrot) other).getEvent(event);
+                other.getEvent(event);
                 return;
             }
 
@@ -118,7 +118,7 @@ public class Player extends MapObject {
 
 
             // Interaction only happens between players
-            if (other == null || !Player.class.isAssignableFrom(other.getClass())) {
+            if (!Player.class.isAssignableFrom(other.getClass())) {
                 return;
             }
 
