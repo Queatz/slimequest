@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.slimequest.game.game.MapObject;
 import com.slimequest.game.game.World;
+import com.slimequest.game.screens.GameScreen;
 
-import java.util.Hashtable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Game {
 
     // The game
-    public static SlimeQuestGame game;
+    public static GameScreen game;
 
     // The world
     public static World world;
