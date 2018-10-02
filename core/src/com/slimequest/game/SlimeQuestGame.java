@@ -51,7 +51,7 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
 
     @Override
     public void resize(int width, int height) {
-        screen.resume();
+        screen.resize(width, height);
     }
 
     @Override
@@ -80,12 +80,12 @@ public class SlimeQuestGame extends ApplicationAdapter implements InputProcessor
     }
 
     @Override
-    public boolean touchDragged (int screenX, int screenY, int pointer) {
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
         return screen.touchDragged(screenX, screenY, pointer);
     }
 
     @Override
-    public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         return screen.touchUp(screenX, screenY, pointer, button);
     }
 
